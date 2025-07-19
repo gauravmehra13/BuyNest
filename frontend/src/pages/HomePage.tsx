@@ -28,42 +28,71 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-        <div className="absolute inset-0 opacity-30">
-          <img
-            src="https://images.pexels.com/photos/5632402/pexels-photo-5632402.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-            alt="Hero Background"
-            className="w-full h-full object-cover"
-          />
+      <section className="relative bg-[#0A0A0A]">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#0D0D0D] to-black"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#312e81_1%,transparent_50%)]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,#1e1b4b_1%,transparent_50%)]"></div>
         </div>
 
-        <div className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-                Discover Amazing
-                <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
+        <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 min-h-[85vh] items-center py-12 lg:py-16">
+            <div className="w-full max-w-3xl mx-auto lg:mx-0 text-center lg:text-left">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 mb-6 rounded-full bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-800/20">
+                <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                <p className="text-sm text-indigo-300 font-medium">Welcome to BuyNest</p>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight lg:leading-[1.2]">
+                <span className="text-white">Discover</span>
+                <span className="block mt-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
                   Premium Products
                 </span>
               </h1>
-              <p className="text-xl text-gray-300 mb-8">
-                Find everything you need with our curated selection of premium products at unbeatable prices.
+
+              <p className="mt-6 lg:mt-8 text-base sm:text-lg text-gray-400 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                Explore our curated collection of premium products. Quality meets elegance,
+                delivered right to your doorstep with unmatched service and style.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+
+              <div className="mt-8 lg:mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   to="/products"
-                  className={`${theme.button.primary} text-lg`}
+                  className="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transform transition-all duration-200 shadow-[0_0_20px_rgba(79,70,229,0.2)] hover:shadow-[0_0_25px_rgba(79,70,229,0.3)]"
                 >
-                  Shop Now
-                  <ArrowRight className="h-5 w-5" />
+                  Explore Collection
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+                <Link
+                  to="/products"
+                  className="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-gray-300 bg-white/5 rounded-lg hover:bg-white/10 border border-gray-800 transition-colors duration-200"
+                >
+                  View Latest
                 </Link>
               </div>
+
+              <div className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 border-t border-gray-800 pt-8 max-w-2xl mx-auto lg:mx-0">
+                <div>
+                  <p className="text-2xl sm:text-3xl font-bold text-white">2K+</p>
+                  <p className="mt-2 text-sm text-gray-400">Active Users</p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-bold text-white">500+</p>
+                  <p className="mt-2 text-sm text-gray-400">Products</p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-bold text-white">98%</p>
+                  <p className="mt-2 text-sm text-gray-400">Satisfaction</p>
+                </div>
+              </div>
             </div>
-            <div className="relative hidden lg:block">
+
+            <div className="relative lg:block mt-12 lg:mt-0">
+              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-2xl"></div>
               <img
-                src="https://images.pexels.com/photos/5868722/pexels-photo-5868722.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                src="https://images.pexels.com/photos/637076/pexels-photo-637076.jpeg?_gl=1*nxpga9*_ga*OTA0Njg1Mzg0LjE3NTI5MjU4NzY.*_ga_8JE65Q40S6*czE3NTI5MjU4NzUkbzEkZzEkdDE3NTI5MjY5ODkkajU5JGwwJGgw"
                 alt="Featured Product"
-                className="rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-500"
+                className="relative w-full max-w-xl mx-auto rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 border border-gray-800/50"
               />
             </div>
           </div>

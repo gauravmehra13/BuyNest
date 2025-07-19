@@ -46,22 +46,22 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo - Made slightly smaller on medium screens */}
+          <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">B</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">BuyNest</span>
+            <span className="text-lg md:text-xl font-bold text-gray-900">BuyNest</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          {/* Desktop Navigation - Adjusted spacing and breakpoints */}
+          <nav className="hidden md:flex space-x-4 lg:space-x-8 ml-4 lg:ml-8">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm font-medium transition-colors hover:text-blue-600 ${
+                className={`text-sm font-medium transition-colors hover:text-blue-600 whitespace-nowrap ${
                   location.pathname === item.href
                     ? 'text-blue-600'
                     : 'text-gray-700'
@@ -72,8 +72,8 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          {/* Search Bar - Adjusted for better responsive behavior */}
+          <div className="hidden md:flex flex-1 max-w-sm lg:max-w-md mx-4 lg:mx-8">
             <form onSubmit={handleSearch} className="w-full">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -82,7 +82,7 @@ export default function Header() {
                   value={searchQuery}
                   onChange={handleSearchChange}
                   placeholder="Search products..."
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-10 py-1.5 lg:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 {searchQuery && (
                   <button
@@ -97,16 +97,16 @@ export default function Header() {
             </form>
           </div>
 
-          {/* Right Side Icons */}
-          <div className="flex items-center space-x-4">
+          {/* Right Side Icons - Adjusted spacing */}
+          <div className="flex items-center space-x-2 lg:space-x-4">
             {/* Cart */}
             <button
               onClick={() => dispatch({ type: 'TOGGLE_CART' })}
-              className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors"
+              className="relative p-1.5 lg:p-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
-              <ShoppingCart className="h-6 w-6" />
+              <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6" />
               {state.items.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-4 lg:h-5 w-4 lg:w-5 flex items-center justify-center">
                   {state.items.reduce((total, item) => total + item.quantity, 0)}
                 </span>
               )}
@@ -115,15 +115,15 @@ export default function Header() {
             {/* User */}
             <Link
               to={authState.isAuthenticated ? '/account' : '/login'}
-              className="p-2 text-gray-700 hover:text-blue-600 transition-colors"
+              className="p-1.5 lg:p-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
-              <User className="h-6 w-6" />
+              <User className="h-5 w-5 lg:h-6 lg:w-6" />
             </Link>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-gray-700 hover:text-blue-600 transition-colors"
+              className="md:hidden p-1.5 text-gray-700 hover:text-blue-600 transition-colors"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -143,7 +143,7 @@ export default function Header() {
                     value={searchQuery}
                     onChange={handleSearchChange}
                     placeholder="Search products..."
-                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   {searchQuery && (
                     <button
@@ -158,7 +158,7 @@ export default function Header() {
               </form>
 
               {/* Mobile Navigation */}
-              <nav className="space-y-2">
+              <nav className="space-y-1">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}

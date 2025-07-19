@@ -29,13 +29,16 @@ export default function ProductCard({ product }: ProductCardProps) {
   }).format(product.price);
 
   return (
-    <Link to={`/products/${product._id}`} className="group block h-[26rem]">
-      <div className={`${theme.card.base} ${theme.card.hover} h-full flex flex-col`}>
-        <div className="relative h-48 flex-shrink-0">
+    <Link 
+      to={`/products/${product._id}`} 
+      className="group block"
+    >
+      <div className={`${theme.card.base} ${theme.card.hover} flex flex-col h-full`}>
+        <div className="relative h-40 sm:h-48">
           <img
             src={product.images[0]}
             alt={product.name}
-            className={`w-full h-full object-cover group-hover:scale-105 ${animations.slideIn}`}
+            className={`w-full h-full object-contain group-hover:scale-105 ${animations.slideIn}`}
           />
 
           <div className="absolute top-2 left-2 space-y-1">
@@ -46,43 +49,40 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          <button className={`absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 ${animations.scaleIn}`}>
+          <button 
+            className={`absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 ${animations.scaleIn}`}
+            onClick={(e) => e.preventDefault()}
+          >
             <Heart className="h-4 w-4 text-gray-600" />
           </button>
         </div>
 
-        <div className="p-4 flex flex-col flex-grow">
-          {/* Product Name - Fixed Height */}
-          <div className="h-12 mb-2">
-            <h3 className={`${theme.text.heading} line-clamp-2 text-sm`}>
-              {product.name}
-            </h3>
-          </div>
+        <div className="p-3 sm:p-4 flex flex-col gap-2">
+          <h3 className={`${theme.text.heading} text-sm line-clamp-2 min-h-[2.5em]`}>
+            {product.name}
+          </h3>
 
-          <div className="h-6 flex items-center space-x-1">
+          <div className="flex items-center space-x-1">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-4 w-4 ${i < 4
-                      ? 'text-yellow-400 fill-current'
-                      : 'text-gray-300'
-                    }`}
+                  className={`h-3 w-3 sm:h-4 sm:w-4 ${
+                    i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                  }`}
                 />
               ))}
             </div>
-            <span className={`text-sm ${theme.text.body}`}>(4.0)</span>
+            <span className={`text-xs sm:text-sm ${theme.text.body}`}>(4.0)</span>
           </div>
 
-          <div className="h-10 flex items-center">
-            <span className={`text-lg font-bold ${theme.text.heading}`}>{formattedPrice}</span>
+          <div className="flex items-center">
+            <span className={`text-base sm:text-lg font-bold ${theme.text.heading}`}>{formattedPrice}</span>
           </div>
-
-          <div className="flex-grow"></div>
 
           <button
             onClick={addToCart}
-            className={`${theme.button.primary}`}
+            className={`${theme.button.primary} w-full text-sm sm:text-base py-1.5 sm:py-2 mt-1`}
           >
             <ShoppingCart className="h-4 w-4" />
             <span>Add to Cart</span>

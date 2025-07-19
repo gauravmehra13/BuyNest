@@ -138,7 +138,7 @@ export default function ProductDetailPage() {
 
             {/* Price */}
             <div className="flex items-center space-x-2 mb-6">
-              <span className={`text-3xl ${theme.text.heading}`}>${product.price}</span>
+              <span className={`text-3xl ${theme.text.heading}`}>₹{product.price}</span>
               <span className={`text-sm ${theme.text.body}`}>
                 {product.inventoryCount} in stock
               </span>

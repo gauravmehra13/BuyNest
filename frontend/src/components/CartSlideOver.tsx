@@ -15,10 +15,18 @@ export default function CartSlideOver() {
     dispatch({ type: 'REMOVE_FROM_CART', productId });
   };
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => dispatch({ type: 'CLOSE_CART' })} />
-      
+
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
         <div className="flex h-full flex-col">
           {/* Header */}
@@ -56,14 +64,14 @@ export default function CartSlideOver() {
                     />
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900">{item.product.name}</h3>
-                      <p className="text-sm text-gray-600">${item.product.price}</p>
+                      <p className="text-sm text-gray-600">{formatPrice(item.product.price)}</p>
                       {item.selectedSize && (
                         <p className="text-xs text-gray-500">Size: {item.selectedSize}</p>
                       )}
                       {item.selectedColor && (
                         <p className="text-xs text-gray-500">Color: {item.selectedColor}</p>
                       )}
-                      
+
                       {/* Quantity Controls */}
                       <div className="flex items-center space-x-2 mt-2">
                         <button
@@ -89,7 +97,7 @@ export default function CartSlideOver() {
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-gray-900">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.product.price * item.quantity)}
                       </p>
                     </div>
                   </div>
@@ -103,7 +111,7 @@ export default function CartSlideOver() {
             <div className="border-t border-gray-200 p-4 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-base font-medium text-gray-900">Total:</span>
-                <span className="text-lg font-bold text-gray-900">${totalPrice.toFixed(2)}</span>
+                <span className="text-lg font-bold text-gray-900">{formatPrice(totalPrice)}</span>
               </div>
               <Link
                 to="/checkout"

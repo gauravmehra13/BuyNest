@@ -188,8 +188,8 @@ export default function ProductsPage() {
                     className="w-full"
                   />
                   <div className={commonClasses.flexBetween + " text-sm " + theme.text.body}>
-                    <span>$0</span>
-                    <span>${priceRange[1]}</span>
+                    <span>₹0</span>
+                    <span>₹{priceRange[1]}</span>
                   </div>
                 </div>
               </div>

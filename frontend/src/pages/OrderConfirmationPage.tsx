@@ -86,7 +86,7 @@ export default function OrderConfirmationPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total:</span>
-                  <span className="font-bold text-lg">${orderData.totalAmount.toFixed(2)}</span>
+                  <span className="font-bold text-lg">₹{orderData.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -114,7 +114,7 @@ export default function OrderConfirmationPage() {
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{item.name}</h3>
                     <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                    <p className="text-sm text-gray-600">${item.price} each</p>
+                    <p className="text-sm text-gray-600">₹{item.price} each</p>
                     {item.selectedSize && (
                       <p className="text-xs text-gray-500">Size: {item.selectedSize}</p>
                     )}
@@ -124,7 +124,7 @@ export default function OrderConfirmationPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-gray-900">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ₹{(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>
