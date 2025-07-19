@@ -12,8 +12,14 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const corsOptions = {
+  origin: ['https://buy-nest.netlify.app', 'http://localhost:5173'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(cors());
 
 connectDB();
 
