@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { CheckoutPayload } from '../types';
@@ -11,22 +12,30 @@ interface FormErrors {
 }
 
 export default function CheckoutPage() {
-  const { state, dispatch, totalPrice } = useCart();
+  const { state: cartState, dispatch, totalPrice } = useCart();
+  const { state: authState } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authState.isAuthenticated) {
+      navigate('/login', { state: { from: '/checkout' } });
+    }
+  }, [authState.isAuthenticated, navigate]);
+
+  // Pre-fill form with user data if available
   const [formData, setFormData] = useState({
-    // Shipping
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
+    firstName: authState.user?.firstName || '',
+    lastName: authState.user?.lastName || '',
+    email: authState.user?.email || '',
+    phone: authState.user?.phoneNumber || '',
+    address: authState.user?.addresses.find(addr => addr.isDefault)?.street || '',
+    city: authState.user?.addresses.find(addr => addr.isDefault)?.city || '',
+    state: authState.user?.addresses.find(addr => addr.isDefault)?.state || '',
+    zipCode: authState.user?.addresses.find(addr => addr.isDefault)?.zipCode || '',
     country: 'IN',
 
-    // Payment
+    // Payment fields
     cardNumber: '',
     expiryDate: '',
     cvv: '',
@@ -140,18 +149,24 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!authState.user?._id) {
+      setErrors({ submit: 'Please log in to complete your purchase' });
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
       // Prepare checkout payload
       const checkoutPayload: CheckoutPayload = {
-        products: state.items.map(item => ({
+        user: authState.user._id, // Required user ID
+        products: cartState.items.map(item => ({
           productId: item.product._id,
           name: item.product.name,
           quantity: item.quantity,
           price: item.product.price,
-          selectedSize: item.selectedSize || '',
-          selectedColor: item.selectedColor || ''
+          selectedSize: item.selectedSize,
+          selectedColor: item.selectedColor
         })),
         totalAmount: total,
         customerName: `${formData.firstName} ${formData.lastName}`,
@@ -162,8 +177,10 @@ export default function CheckoutPage() {
         cardNumber: formData.cardNumber.replace(/\s/g, ''),
         expiryDate: formData.expiryDate.replace('/', '-'),
         cvv: formData.cvv,
-        transactionType: '1'
+        transactionType: "1" // 1 = Approved, 2 = Declined, 3 = Gateway Error
       };
+
+      console.log('Sending checkout payload:', checkoutPayload); // Add this for debugging
 
       const response = await api.checkout(checkoutPayload);
 
@@ -182,7 +199,7 @@ export default function CheckoutPage() {
   const tax = totalPrice * 0.08; // 8% tax
   const total = totalPrice + shipping + tax;
 
-  if (state.items.length === 0) {
+  if (cartState.items.length === 0) {
     return (
       <div className={`min-h-screen ${commonClasses.flexCenter} ${commonClasses.pageContainer}`}>
         <div className="text-center">
@@ -314,7 +331,7 @@ export default function CheckoutPage() {
             <h2 className={`text-xl ${theme.text.heading} mb-4`}>Order Summary</h2>
 
             <div className="space-y-4 mb-6">
-              {state.items.map((item) => (
+              {cartState.items.map((item) => (
                 <div key={item.id} className="flex items-center space-x-3">
                   <img
                     src={item.product.images[0]}

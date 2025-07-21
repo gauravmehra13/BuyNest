@@ -6,7 +6,8 @@ import { theme, commonClasses } from '../styles/theme';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -22,8 +23,12 @@ export default function RegisterPage() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
     }
 
     if (!formData.email.trim()) {
@@ -58,14 +63,17 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const success = await register(formData.name, formData.email, formData.password);
-      if (success) {
-        navigate('/');
-      } else {
-        setErrors({ submit: 'Registration failed. Please try again.' });
-      }
-    } catch {
-      setErrors({ submit: 'An error occurred. Please try again.' });
+      await register(
+        formData.firstName,
+        formData.lastName,
+        formData.email,
+        formData.password
+      );
+      navigate('/');
+    } catch (error: any) {
+      setErrors({ 
+        submit: error.message || 'Registration failed. Please try again.' 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -116,24 +124,46 @@ export default function RegisterPage() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className={`block text-sm font-medium ${theme.text.heading}`}>
-                Full Name
+              <label htmlFor="firstName" className={`block text-sm font-medium ${theme.text.heading}`}>
+                First Name
               </label>
               <div className="mt-1 relative">
                 <input
-                  id="name"
-                  name="name"
+                  id="firstName"
+                  name="firstName"
                   type="text"
-                  autoComplete="name"
-                  value={formData.name}
+                  autoComplete="given-name"
+                  value={formData.firstName}
                   onChange={handleChange}
-                  className={getInputClasses('name')}
-                  placeholder="Enter your full name"
+                  className={getInputClasses('firstName')}
+                  placeholder="Enter your first name"
                 />
                 <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              {errors.firstName && (
+                <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="lastName" className={`block text-sm font-medium ${theme.text.heading}`}>
+                Last Name
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  autoComplete="family-name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className={getInputClasses('lastName')}
+                  placeholder="Enter your last name"
+                />
+                <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              </div>
+              {errors.lastName && (
+                <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
               )}
             </div>
 

@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 exports.processCheckout = async (req, res) => {
   try {
     const {
+      user,
       customerName,
       email,
       phoneNumber,
@@ -35,6 +36,7 @@ exports.processCheckout = async (req, res) => {
 
     const newOrder = new Order({
       orderNumber,
+      user,
       customerName,
       email,
       phoneNumber,

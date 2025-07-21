@@ -22,10 +22,36 @@ export interface CartItem {
 }
 
 export interface User {
-  id: string;
-  name: string;
+  _id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  isAuthenticated: boolean;
+  role: 'user' | 'admin';
+  profilePicture?: string;
+  phoneNumber?: string;
+  addresses: {
+    _id: string;
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+    isDefault: boolean;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token: string;
+  user: User;
+}
+
+export interface ErrorResponse {
+  success: false;
+  message: string;
+  errors?: { msg: string; param: string }[];
 }
 
 export interface Category {
@@ -45,14 +71,15 @@ export interface Review {
 }
 
 export interface CheckoutPayload {
-  products: {
+  user: string; // Required user ID
+  products: Array<{
     productId: string;
     name: string;
     quantity: number;
     price: number;
-    selectedSize: string;
-    selectedColor: string;
-  }[];
+    selectedSize?: string;
+    selectedColor?: string;
+  }>;
   totalAmount: number;
   customerName: string;
   email: string;
@@ -62,7 +89,7 @@ export interface CheckoutPayload {
   cardNumber: string;
   expiryDate: string;
   cvv: string;
-  transactionType: string;
+  transactionType: "1" | "2" | "3";
 }
 
 export interface Order {
@@ -84,5 +111,63 @@ export interface Order {
   cityStateZip: string;
   status: string;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginationResponse<T> {
+  success: true;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+export interface ApiError {
+  success: false;
+  message: string;
+  errors?: Array<{
+    msg: string;
+    param: string;
+  }>;
+}
+
+export interface OrderProduct {
+  name: string;
+  variant?: string;
+  quantity: number;
+  price: number;
+  selectedSize?: string;
+  selectedColor?: string;
+}
+
+export interface PastOrderProduct {
+  name: string;
+  variant?: string;
+  quantity: number;
+  price: number;
+  selectedSize?: string;
+  selectedColor?: string;
+}
+
+export interface PastOrder {
+  _id: string;
+  orderNumber: string;
+  totalAmount: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  products: PastOrderProduct[];
+  createdAt: string;
+}
+
+export interface PastOrderDetail extends PastOrder {
+  user: string;
+  customerName: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  cityStateZip: string;
+  transactionStatus: 'Approved' | 'Declined' | 'Gateway Error';
   updatedAt: string;
 }

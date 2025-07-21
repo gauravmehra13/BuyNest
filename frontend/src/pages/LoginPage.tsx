@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
+  const { login, state } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,14 +20,10 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigate('/');
-      } else {
-        setError('Invalid email or password');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      await login(email, password);
+      navigate('/');
+    } catch (error: any) {
+      setError(error.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }
