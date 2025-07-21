@@ -3,6 +3,11 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema(
   {
     orderNumber: { type: String, required: true, unique: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
     customerName: { type: String, required: true },
     email: { type: String, required: true },
     phoneNumber: { type: String, required: true },
@@ -19,6 +24,11 @@ const orderSchema = new mongoose.Schema(
       },
     ],
     totalAmount: { type: Number, required: true },
+    status: {
+      type: String,
+      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+      default: 'pending'
+    },
     transactionStatus: {
       type: String,
       enum: ["Approved", "Declined", "Gateway Error"],
@@ -27,6 +37,9 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Add index for faster user queries
+orderSchema.index({ user: 1, createdAt: -1 });
 
 // Defensive model export to avoid OverwriteModelError
 module.exports = mongoose.models.Order || mongoose.model("Order", orderSchema);
