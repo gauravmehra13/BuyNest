@@ -2,6 +2,8 @@
 
 Welcome to **BuyNest**, a modern full-stack e-commerce platform built with React on the frontend and Express.js on the backend. This project demonstrates robust cart management, dynamic order summaries, seamless email notifications, and well-structured Express APIs.
 
+![BuyNest Preview](frontend/public/buyNest.png)
+
 ---
 
 ## 🚀 Tech Stack
@@ -16,11 +18,8 @@ Welcome to **BuyNest**, a modern full-stack e-commerce platform built with React
 ### Backend
 - **Node.js** with **Express.js** for APIs  
 - MongoDB for data persistence  
-- Nodemailer (Mailtrap) for email notifications  
+- Sendgrid for email notifications  
 - Environment-based configuration with `.env` files  
-
----
-
 
 ---
 
@@ -44,7 +43,7 @@ Welcome to **BuyNest**, a modern full-stack e-commerce platform built with React
 ## 📧 Email Notifications
 
 - Backend triggers order confirmation emails on successful checkout  
-- Configured using Nodemailer with Mailtrap for safe testing  
+- Configured using Sendgrid for reliable email delivery  
 - Email includes order details and customer information  
 
 ---
@@ -55,6 +54,28 @@ Welcome to **BuyNest**, a modern full-stack e-commerce platform built with React
 - APIs for fetching products, creating orders, and checkout processing  
 - Controllers separate business logic from routing  
 - Environment variables secure sensitive data (DB credentials, email credentials)  
+
+---
+
+## 🔐 Environment Variables
+
+### Frontend (.env)
+```
+VITE_API_URL=<backend_api_url>
+```
+
+### Backend (.env)
+```
+PORT=<port_number>
+MONGODB_URI=<mongodb_connection_string>
+JWT_SECRET=<jwt_secret_key>
+SENDGRID_API_KEY=<sendgrid_api_key>
+CLOUDINARY_CLOUD_NAME=<cloudinary_cloud_name>
+CLOUDINARY_API_KEY=<cloudinary_api_key>
+CLOUDINARY_API_SECRET=<cloudinary_api_secret>
+```
+
+Make sure to create `.env` files in both frontend and backend directories with the above variables filled in with your values.
 
 ---
 

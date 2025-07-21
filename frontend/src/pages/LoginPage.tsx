@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const { login, state } = useAuth();
   const navigate = useNavigate();
 
@@ -39,7 +39,7 @@ export default function LoginPage() {
             </div>
             <span className={`text-2xl ${theme.text.heading}`}>BuyNest</span>
           </Link>
-          
+
           <h2 className={`mt-6 text-center text-3xl font-extrabold ${theme.text.heading}`}>
             Sign in to your account
           </h2>
@@ -137,11 +137,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="text-center">
-            <p className={`text-sm ${theme.text.body}`}>
-              Demo credentials: demo@example.com / password
-            </p>
-          </div>
         </form>
       </div>
     </div>
