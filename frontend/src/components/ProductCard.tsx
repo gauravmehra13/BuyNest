@@ -18,7 +18,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       type: 'ADD_TO_CART',
       product,
       selectedSize: product.sizes[0] || '',
-      selectedColor: product.colors[0] || ''
+      selectedColor: product.colors[0] || '',
     });
   };
 

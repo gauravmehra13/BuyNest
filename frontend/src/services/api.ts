@@ -244,4 +244,61 @@ export const api = {
     }
     return response.json();
   },
+
+  // Cart APIs
+  getCart: async () => {
+    const response = await fetch(`${BASE_URL}/cart`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch cart");
+    }
+    return response.json();
+  },
+
+  addToCart: async (productId: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
+    const response = await fetch(`${BASE_URL}/cart/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ productId, quantity, selectedSize, selectedColor }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add item to cart");
+    }
+    return response.json();
+  },
+
+  removeFromCart: async (id: string) => {
+    const response = await fetch(`${BASE_URL}/cart/remove/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to remove item from cart");
+    }
+    return response.json();
+  },
+
+  updateCartItem: async (id: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
+    const response = await fetch(`${BASE_URL}/cart/update/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ quantity, selectedSize, selectedColor }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update cart item");
+    }
+    return response.json();
+  },
+
+  clearCart: async () => {
+    const response = await fetch(`${BASE_URL}/cart/clear`, {
+      method: "POST",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to clear cart");
+    }
+    return response.json();
+  },
 };
