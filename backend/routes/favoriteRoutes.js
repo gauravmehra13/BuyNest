@@ -3,7 +3,7 @@ const router = express.Router();
 const favoriteController = require("../controllers/favoriteController");
 const { protect } = require("../middleware/auth");
 
-router.get("/", protect, favoriteController.getFavorites);
+router.get("/", protect, favoriteController.getFavoriteItems);
 router.post("/add", protect, favoriteController.addToFavorites);
 router.delete("/remove/:id", protect, favoriteController.removeFromFavorites);
 

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { FavoritesProvider } from './contexts/FavoriteContext';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -23,37 +24,39 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Header />
-            <CartSlideOver />
-            <FavoritesSlideOver />
+        <FavoritesProvider>
+          <Router>
+            <div className="min-h-screen bg-gray-50">
+              <Header />
+              <CartSlideOver />
+              <FavoritesSlideOver />
 
-            <main>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/:id" element={<ProductDetailPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />
-                <Route
-                  path="/account/*"
-                  element={
-                    <ProtectedRoute>
-                      <AccountPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
+              <main>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/products/:id" element={<ProductDetailPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />
+                  <Route
+                    path="/account/*"
+                    element={
+                      <ProtectedRoute>
+                        <AccountPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
 
-            <Footer />
-          </div>
-        </Router>
+              <Footer />
+            </div>
+          </Router>
+        </FavoritesProvider>
       </CartProvider>
     </AuthProvider>
   );

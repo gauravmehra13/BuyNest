@@ -2,6 +2,8 @@ import React from 'react';
 import { Star, ShoppingCart, Heart } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
+import { useFavorites } from '../contexts/FavoriteContext';
+
 import { Link } from 'react-router-dom';
 import { theme, animations } from '../styles/theme';
 
@@ -10,22 +12,25 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { dispatch, state } = useCart();
-  
-  const isFavorite = state.favorites.some(fav => fav.product._id === product._id);
+  const { dispatch: cartDispatch } = useCart();
+  const { state: favState, dispatch: favDispatch } = useFavorites();
+
+  const isFavorite = favState.items.some(f => f.product._id === product._id);
+
   const addToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    dispatch({
+    cartDispatch({
       type: 'ADD_TO_CART',
       product,
       selectedSize: product.sizes[0] || '',
       selectedColor: product.colors[0] || '',
     });
-  };  
+  };
 
   const addToFavorites = (e: React.MouseEvent) => {
     e.preventDefault();
-    dispatch({ type: 'ADD_TO_FAVORITES', product: product });
+    if (isFavorite) return;  // prevent duplicate add
+    favDispatch({ type: 'ADD_TO_FAVORITES', product });
   };
   const formattedPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',

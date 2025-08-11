@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, Heart, Trash2 } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, Heart, } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useFavorites } from '../contexts/FavoriteContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { state, dispatch } = useCart();
+  const { state: cartState, dispatch: cartDispatch } = useCart();
+  const { state: favoritesState, dispatch: favoritesDispatch } = useFavorites();
   const { state: authState } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ export default function Header() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    
+
     if (location.pathname === '/products' && !value.trim()) {
       navigate('/products');
     }
@@ -61,11 +63,10 @@ export default function Header() {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm font-medium transition-colors hover:text-blue-600 whitespace-nowrap ${
-                  location.pathname === item.href
+                className={`text-sm font-medium transition-colors hover:text-blue-600 whitespace-nowrap ${location.pathname === item.href
                     ? 'text-blue-600'
                     : 'text-gray-700'
-                }`}
+                  }`}
               >
                 {item.name}
               </Link>
@@ -101,26 +102,26 @@ export default function Header() {
           <div className="flex items-center space-x-2 lg:space-x-4">
             {/* Cart */}
             <button
-              onClick={() => dispatch({ type: 'TOGGLE_CART' })}
+              onClick={() => cartDispatch({ type: 'TOGGLE_CART' })}
               className="relative p-1.5 lg:p-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
               <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6" />
-              {state.items.length > 0 && (
+              {cartState.items.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-4 lg:h-5 w-4 lg:w-5 flex items-center justify-center">
-                  {state.items.reduce((total, item) => total + item.quantity, 0)}
+                  {cartState.items.reduce((total, item) => total + item.quantity, 0)}
                 </span>
               )}
             </button>
 
             {/* Favorites */}
             <button
-              onClick={() => dispatch({ type: 'TOGGLE_FAVORITES' })}
+              onClick={() => favoritesDispatch({ type: 'TOGGLE_FAVORITES' })}
               className="relative p-1.5 lg:p-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
               <Heart className="h-5 w-5 lg:h-6 lg:w-6" />
-              {state.favorites.length > 0 && (
+              {favoritesState.items.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-4 lg:h-5 w-4 lg:w-5 flex items-center justify-center">
-                  {state.favorites.length}
+                  {favoritesState.items.length}
                 </span>
               )}
             </button>
@@ -177,11 +178,10 @@ export default function Header() {
                     key={item.name}
                     to={item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`block px-2 py-2 text-base font-medium transition-colors hover:text-blue-600 ${
-                      location.pathname === item.href
+                    className={`block px-2 py-2 text-base font-medium transition-colors hover:text-blue-600 ${location.pathname === item.href
                         ? 'text-blue-600'
                         : 'text-gray-700'
-                    }`}
+                      }`}
                   >
                     {item.name}
                   </Link>

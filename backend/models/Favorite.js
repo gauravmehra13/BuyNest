@@ -2,13 +2,18 @@ const mongoose = require("mongoose");
 
 const favoriteSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    product: {
+      _id: { type: mongoose.Schema.Types.ObjectId, required: true },
+      name: { type: String, required: true },
+      images: { type: [String], required: true },
+      price: { type: Number, required: true },
+    }
   },
   { timestamps: true }
 );
 
-// Ensure no duplicates for same user-product
-favoriteSchema.index({ userId: 1, productId: 1 }, { unique: true });
+// Prevent duplicate favorites
+favoriteSchema.index({ user: 1, "product._id": 1 }, { unique: true });
 
-module.exports = mongoose.model("Favorite", favoriteSchema);
+module.exports = mongoose.models.Favorite || mongoose.model("Favorite", favoriteSchema);

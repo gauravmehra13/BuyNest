@@ -6,11 +6,6 @@ import { useAuth } from './AuthContext';
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
-  favorites: Array<{
-    _id: string; // Favorite entry ID (from backend)
-    product: Product;
-  }>;
-  isFavoritesOpen: boolean;
 }
 
 type CartAction =
@@ -21,13 +16,7 @@ type CartAction =
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_CART' }
   | { type: 'CLOSE_CART' }
-  | { type: 'SET_CART'; items: CartItem[] }
-  | { type: 'TOGGLE_FAVORITES' }
-  | { type: 'CLOSE_FAVORITES' }
-  | { type: 'SET_FAVORITES'; favorites: Array<{ _id: string; product: Product }> }
-  | { type: 'ADD_TO_FAVORITES'; product: Product }
-  | { type: 'ADD_TO_FAVORITES_SUCCESS'; _id: string; product: Product }
-  | { type: 'REMOVE_FROM_FAVORITES'; favoriteId: string };
+  | { type: 'SET_CART'; items: CartItem[] };
 
 const CartContext = createContext<{
   state: CartState;
@@ -86,7 +75,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
               ? { ...item, quantity: action.quantity }
               : item
           )
-          .filter(item => item.quantity > 0) // Remove items with quantity <= 0
+          .filter(item => item.quantity > 0)
       };
 
     case 'UPDATE_SELECTION':
@@ -108,24 +97,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case 'CLOSE_CART':
       return { ...state, isOpen: false };
 
-    case 'TOGGLE_FAVORITES':
-      return { ...state, isFavoritesOpen: !state.isFavoritesOpen };
-
-    case 'CLOSE_FAVORITES':
-      return { ...state, isFavoritesOpen: false };
-
-    case 'SET_FAVORITES':
-      return { ...state, favorites: action.favorites };
-
-    case 'ADD_TO_FAVORITES':
-      return { ...state, favorites: [...state.favorites, { _id: 'temp-' + action.product._id, product: action.product }] };
-
-    case 'ADD_TO_FAVORITES_SUCCESS':
-      return { ...state, favorites: [...state.favorites.filter(f => f._id !== ('temp-' + action.product._id)), { _id: action._id, product: action.product }] };
-
-    case 'REMOVE_FROM_FAVORITES':
-      return { ...state, favorites: state.favorites.filter(f => f._id !== action.favoriteId) };
-
     default:
       return state;
   }
@@ -136,8 +107,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, {
     items: [],
     isOpen: false,
-    favorites: [],
-    isFavoritesOpen: false,
   });
 
   // Load cart on auth change
@@ -146,11 +115,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       try {
         const cartItems = await api.getCart();
         dispatch({ type: 'SET_CART', items: cartItems });
-
-        const favorites = await api.getFavorites();
-        dispatch({ type: 'SET_FAVORITES', favorites });
       } catch (error) {
-        console.error("Failed to fetch cart or favorites:", error);
+        console.error("Failed to fetch cart:", error);
       }
     };
 
@@ -175,7 +141,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const mergeGuestCart = async () => {
       const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
       if (guestCart.length) {
-        for (let item of guestCart) {
+        for (const item of guestCart) {
           await api.addToCart(item.product._id, item.quantity, item.selectedSize, item.selectedColor);
         }
         localStorage.removeItem('guestCart');

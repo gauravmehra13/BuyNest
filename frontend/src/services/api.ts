@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { AuthResponse, ErrorResponse, User, PastOrder, PastOrderDetail , CheckoutPayload} from '../types';
-import { Product } from '../types';
+// import { Product } from '../types';
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const axiosInstance = axios.create({
@@ -250,7 +250,7 @@ updateCartItem: async (cartItemId: string, quantity: number, selectedSize?: stri
   
   addToFavorites: async (productId: string) => {
     const response = await axiosInstance.post('/favorites/add', { productId });
-    return response.data;
+    return response.data; // { message, favorite }
   },
   
   removeFromFavorites: async (favoriteId: string) => {
