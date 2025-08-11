@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, Heart, Trash2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -108,6 +108,19 @@ export default function Header() {
               {state.items.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-4 lg:h-5 w-4 lg:w-5 flex items-center justify-center">
                   {state.items.reduce((total, item) => total + item.quantity, 0)}
+                </span>
+              )}
+            </button>
+
+            {/* Favorites */}
+            <button
+              onClick={() => dispatch({ type: 'TOGGLE_FAVORITES' })}
+              className="relative p-1.5 lg:p-2 text-gray-700 hover:text-blue-600 transition-colors"
+            >
+              <Heart className="h-5 w-5 lg:h-6 lg:w-6" />
+              {state.favorites.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-4 lg:h-5 w-4 lg:w-5 flex items-center justify-center">
+                  {state.favorites.length}
                 </span>
               )}
             </button>

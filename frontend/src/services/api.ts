@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { AuthResponse, ErrorResponse, User, PastOrder, PastOrderDetail , CheckoutPayload} from '../types';
-
+import { Product } from '../types';
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const axiosInstance = axios.create({
@@ -186,119 +186,76 @@ export const profileAPI = {
 export const api = {
   // Products
   getAllProducts: async () => {
-    const response = await fetch(`${BASE_URL}/products`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch products");
-    }
-    return response.json();
+    const response = await axiosInstance.get('/products');
+    return response.data;
   },
 
   getProduct: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/products/${id}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch product");
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/products/${id}`);
+    return response.data;
   },
 
   getRelatedProducts: async (category: string) => {
-    const response = await fetch(
-      `${BASE_URL}/products?category=${encodeURIComponent(category)}`
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch related products");
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/products?category=${encodeURIComponent(category)}`);
+    return response.data;
   },
 
   searchProducts: async (query: string) => {
-    const response = await fetch(
-      `${BASE_URL}/products/search?q=${encodeURIComponent(query)}`
-    );
-    if (!response.ok) {
-      throw new Error("Failed to search products");
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/products/search?q=${encodeURIComponent(query)}`);
+    return response.data;
   },
 
   // Checkout
   checkout: async (payload: CheckoutPayload) => {
-    const response = await fetch(`${BASE_URL}/checkout`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      throw new Error("Checkout failed");
-    }
-    return response.json();
+    const response = await axiosInstance.post('/checkout', payload);
+    return response.data;
   },
 
   // Orders
   getOrder: async (orderNumber: string) => {
-    const response = await fetch(`${BASE_URL}/orders/${orderNumber}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch order");
-    }
-    return response.json();
+    const response = await axiosInstance.get(`/orders/${orderNumber}`);
+    return response.data;
   },
 
   // Cart APIs
   getCart: async () => {
-    const response = await fetch(`${BASE_URL}/cart`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch cart");
-    }
-    return response.json();
+    const response = await axiosInstance.get('/cart');
+    return response.data;
   },
 
   addToCart: async (productId: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
-    const response = await fetch(`${BASE_URL}/cart/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ productId, quantity, selectedSize, selectedColor }),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to add item to cart");
-    }
-    return response.json();
+    const response = await axiosInstance.post('/cart/add', { productId, quantity, selectedSize, selectedColor });
+    return response.data; // should return CartItem from backend
   },
 
-  removeFromCart: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/cart/remove/${id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error("Failed to remove item from cart");
-    }
-    return response.json();
-  },
+removeFromCart: async (cartItemId: string) => {
+  const response = await axiosInstance.delete(`/cart/remove/${cartItemId}`);
+  return response.data;
+},
 
-  updateCartItem: async (id: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
-    const response = await fetch(`${BASE_URL}/cart/update/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ quantity, selectedSize, selectedColor }),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to update cart item");
-    }
-    return response.json();
-  },
+updateCartItem: async (cartItemId: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
+  const response = await axiosInstance.put(`/cart/update/${cartItemId}`, { quantity, selectedSize, selectedColor });
+  return response.data;
+},
 
   clearCart: async () => {
-    const response = await fetch(`${BASE_URL}/cart/clear`, {
-      method: "POST",
-    });
-    if (!response.ok) {
-      throw new Error("Failed to clear cart");
-    }
-    return response.json();
+    const response = await axiosInstance.post('/cart/clear');
+    return response.data;
   },
+
+  getFavorites: async () => {
+    const response = await axiosInstance.get('/favorites'); // No params
+    return response.data; // Should already include populated product
+  },
+  
+  addToFavorites: async (productId: string) => {
+    const response = await axiosInstance.post('/favorites/add', { productId });
+    return response.data;
+  },
+  
+  removeFromFavorites: async (favoriteId: string) => {
+    const response = await axiosInstance.delete(`/favorites/remove/${favoriteId}`);
+    return response.data;
+  },
+  
 };

@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CartSlideOver from './components/CartSlideOver';
+import FavoritesSlideOver from './components/FavoritesSlideOver';
 
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
@@ -26,6 +27,7 @@ function App() {
           <div className="min-h-screen bg-gray-50">
             <Header />
             <CartSlideOver />
+            <FavoritesSlideOver />
 
             <main>
               <Routes>

@@ -7,14 +7,15 @@ export default function CartSlideOver() {
 
   if (!state.isOpen) return null;
 
-  const updateQuantity = (productId: string, quantity: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', productId, quantity });
+  const updateQuantity = (cartItemId: string, quantity: number) => {
+    dispatch({ type: 'UPDATE_QUANTITY', cartItemId, quantity });
   };
 
-  const removeItem = (productId: string) => {
-    dispatch({ type: 'REMOVE_FROM_CART', productId });
-  };
 
+  const removeItem = (cartItemId: string) => {
+    dispatch({ type: 'REMOVE_FROM_CART', cartItemId });
+  };
+  
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -23,6 +24,7 @@ export default function CartSlideOver() {
     }).format(price);
   };
 
+  console.log("state.items", state.items)
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => dispatch({ type: 'CLOSE_CART' })} />
@@ -55,16 +57,18 @@ export default function CartSlideOver() {
               </div>
             ) : (
               <div className="space-y-4">
-                {state.items.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                {state.items && state.items.map((item) => (
+                  <div key={item._id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                     <img
-                      src={item.product.images[0]}
-                      alt={item.product.name}
+                      src={item.product?.images?.[0] || '/fallback.png'}
+                      alt={item.product?.name || 'Product image'}
                       className="w-16 h-16 object-cover rounded-lg"
                     />
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{item.product.name}</h3>
-                      <p className="text-sm text-gray-600">{formatPrice(item.product.price)}</p>
+                      <h3 className="font-medium text-gray-900">{item.product?.name || 'Product'}</h3>
+                      <p className="text-sm text-gray-600">
+                        {item.product?.price ? formatPrice(item.product.price) : 'Price not available'}
+                      </p>
                       {item.selectedSize && (
                         <p className="text-xs text-gray-500">Size: {item.selectedSize}</p>
                       )}
@@ -75,20 +79,20 @@ export default function CartSlideOver() {
                       {/* Quantity Controls */}
                       <div className="flex items-center space-x-2 mt-2">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item._id, item.quantity - 1)}
                           className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
                         <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item._id, item.quantity + 1)}
                           className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
                         >
                           <Plus className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item._id)}
                           className="p-1 text-red-400 hover:text-red-600 transition-colors ml-2"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -97,7 +101,7 @@ export default function CartSlideOver() {
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-gray-900">
-                        {formatPrice(item.product.price * item.quantity)}
+                        {formatPrice(item.product?.price ? item.product.price * item.quantity : 0)}
                       </p>
                     </div>
                   </div>

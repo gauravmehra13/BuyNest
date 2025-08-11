@@ -10,8 +10,9 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { dispatch } = useCart();
-
+  const { dispatch, state } = useCart();
+  
+  const isFavorite = state.favorites.some(fav => fav.product._id === product._id);
   const addToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     dispatch({
@@ -20,8 +21,12 @@ export default function ProductCard({ product }: ProductCardProps) {
       selectedSize: product.sizes[0] || '',
       selectedColor: product.colors[0] || '',
     });
-  };
+  };  
 
+  const addToFavorites = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dispatch({ type: 'ADD_TO_FAVORITES', product: product });
+  };
   const formattedPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -29,8 +34,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   }).format(product.price);
 
   return (
-    <Link 
-      to={`/products/${product._id}`} 
+    <Link
+      to={`/products/${product._id}`}
       className="group block"
     >
       <div className={`${theme.card.base} ${theme.card.hover} flex flex-col h-full`}>
@@ -49,11 +54,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          <button 
-            className={`absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 ${animations.scaleIn}`}
-            onClick={(e) => e.preventDefault()}
+          <button
+            className={`absolute top-2 right-2 p-2 rounded-full shadow-md ${animations.scaleIn} ${isFavorite
+              ? 'bg-red-50 text-red-500 hover:bg-red-100'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
+              }`}
+            onClick={addToFavorites}
           >
-            <Heart className="h-4 w-4 text-gray-600" />
+            <Heart
+              className="h-4 w-4"
+              fill={isFavorite ? 'currentColor' : 'none'}
+            />
           </button>
         </div>
 
@@ -67,9 +78,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                    i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                  }`}
+                  className={`h-3 w-3 sm:h-4 sm:w-4 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                    }`}
                 />
               ))}
             </div>

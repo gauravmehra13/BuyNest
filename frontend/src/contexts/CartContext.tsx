@@ -1,21 +1,33 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { CartItem, Product } from '../types';
 import { api } from '../services/api';
+import { useAuth } from './AuthContext';
 
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
+  favorites: Array<{
+    _id: string; // Favorite entry ID (from backend)
+    product: Product;
+  }>;
+  isFavoritesOpen: boolean;
 }
 
 type CartAction =
-  | { type: 'ADD_TO_CART'; product: Product; selectedSize?: string; selectedColor?: string }
-  | { type: 'REMOVE_FROM_CART'; productId: string }
-  | { type: 'UPDATE_QUANTITY'; productId: string; quantity: number }
-  | { type: 'UPDATE_SELECTION'; productId: string; selectedSize?: string; selectedColor?: string }
+  | { type: 'ADD_TO_CART'; product: Product; selectedSize?: string; selectedColor?: string; cartItemId?: string; quantity?: number }
+  | { type: 'REMOVE_FROM_CART'; cartItemId: string }
+  | { type: 'UPDATE_QUANTITY'; cartItemId: string; quantity: number }
+  | { type: 'UPDATE_SELECTION'; cartItemId: string; selectedSize?: string; selectedColor?: string }
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_CART' }
   | { type: 'CLOSE_CART' }
-  | { type: 'SET_CART'; items: CartItem[] };
+  | { type: 'SET_CART'; items: CartItem[] }
+  | { type: 'TOGGLE_FAVORITES' }
+  | { type: 'CLOSE_FAVORITES' }
+  | { type: 'SET_FAVORITES'; favorites: Array<{ _id: string; product: Product }> }
+  | { type: 'ADD_TO_FAVORITES'; product: Product }
+  | { type: 'ADD_TO_FAVORITES_SUCCESS'; _id: string; product: Product }
+  | { type: 'REMOVE_FROM_FAVORITES'; favoriteId: string };
 
 const CartContext = createContext<{
   state: CartState;
@@ -28,84 +40,91 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'SET_CART':
       return { ...state, items: action.items };
-    case 'ADD_TO_CART':
-      const existingItem = state.items.find(item => 
-        item.id === action.product._id && 
-        item.selectedSize === action.selectedSize && 
+
+    case 'ADD_TO_CART': {
+      const existingItem = state.items.find(item =>
+        item.product._id === action.product._id &&
+        item.selectedSize === action.selectedSize &&
         item.selectedColor === action.selectedColor
       );
       if (existingItem) {
         return {
           ...state,
           items: state.items.map(item =>
-            item.id === action.product._id && 
-            item.selectedSize === action.selectedSize && 
-            item.selectedColor === action.selectedColor
-              ? { ...item, quantity: item.quantity + 1 }
+            item.product._id === action.product._id &&
+              item.selectedSize === action.selectedSize &&
+              item.selectedColor === action.selectedColor
+              ? { ...item, quantity: item.quantity + (action.quantity || 1) }
               : item
           )
         };
       }
       return {
         ...state,
-        items: [...state.items, { 
-          id: action.product._id, 
-          product: action.product, 
-          quantity: 1,
+        items: [...state.items, {
+          _id: action.cartItemId || `temp-${action.product._id}`,
+          product: action.product,
+          quantity: action.quantity || 1,
           selectedSize: action.selectedSize,
           selectedColor: action.selectedColor
         }]
       };
+    }
 
     case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: state.items.filter(item => item.id !== action.productId)
+        items: state.items.filter(item => item._id !== action.cartItemId)
       };
 
     case 'UPDATE_QUANTITY':
-      if (action.quantity <= 0) {
-        return {
-          ...state,
-          items: state.items.filter(item => item.id !== action.productId)
-        };
-      }
       return {
         ...state,
-        items: state.items.map(item =>
-          item.id === action.productId
-            ? { ...item, quantity: action.quantity }
-            : item
-        )
+        items: state.items
+          .map(item =>
+            item._id === action.cartItemId
+              ? { ...item, quantity: action.quantity }
+              : item
+          )
+          .filter(item => item.quantity > 0) // Remove items with quantity <= 0
       };
 
     case 'UPDATE_SELECTION':
       return {
         ...state,
         items: state.items.map(item =>
-          item.id === action.productId
+          item._id === action.cartItemId
             ? { ...item, selectedSize: action.selectedSize, selectedColor: action.selectedColor }
             : item
         )
       };
 
     case 'CLEAR_CART':
-      return {
-        ...state,
-        items: []
-      };
+      return { ...state, items: [] };
 
     case 'TOGGLE_CART':
-      return {
-        ...state,
-        isOpen: !state.isOpen
-      };
+      return { ...state, isOpen: !state.isOpen };
 
     case 'CLOSE_CART':
-      return {
-        ...state,
-        isOpen: false
-      };
+      return { ...state, isOpen: false };
+
+    case 'TOGGLE_FAVORITES':
+      return { ...state, isFavoritesOpen: !state.isFavoritesOpen };
+
+    case 'CLOSE_FAVORITES':
+      return { ...state, isFavoritesOpen: false };
+
+    case 'SET_FAVORITES':
+      return { ...state, favorites: action.favorites };
+
+    case 'ADD_TO_FAVORITES':
+      return { ...state, favorites: [...state.favorites, { _id: 'temp-' + action.product._id, product: action.product }] };
+
+    case 'ADD_TO_FAVORITES_SUCCESS':
+      return { ...state, favorites: [...state.favorites.filter(f => f._id !== ('temp-' + action.product._id)), { _id: action._id, product: action.product }] };
+
+    case 'REMOVE_FROM_FAVORITES':
+      return { ...state, favorites: state.favorites.filter(f => f._id !== action.favoriteId) };
 
     default:
       return state;
@@ -113,62 +132,118 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { state: authState } = useAuth();
   const [state, dispatch] = useReducer(cartReducer, {
     items: [],
     isOpen: false,
+    favorites: [],
+    isFavoritesOpen: false,
   });
 
-  // Fetch cart on initial load
+  // Load cart on auth change
   useEffect(() => {
-    const fetchCart = async () => {
+    const fetchData = async () => {
       try {
         const cartItems = await api.getCart();
         dispatch({ type: 'SET_CART', items: cartItems });
+
+        const favorites = await api.getFavorites();
+        dispatch({ type: 'SET_FAVORITES', favorites });
       } catch (error) {
-        console.error("Failed to fetch cart:", error);
+        console.error("Failed to fetch cart or favorites:", error);
       }
     };
-    fetchCart();
-  }, []);
 
-  // Sync actions with backend
+    if (authState.isAuthenticated) {
+      fetchData();
+    } else {
+      // Load guest cart from localStorage
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      dispatch({ type: 'SET_CART', items: guestCart });
+    }
+  }, [authState.isAuthenticated]);
+
+  // Save guest cart in localStorage when not logged in
+  useEffect(() => {
+    if (!authState.isAuthenticated) {
+      localStorage.setItem('guestCart', JSON.stringify(state.items));
+    }
+  }, [state.items, authState.isAuthenticated]);
+
+  // Merge guest cart into backend on login
+  useEffect(() => {
+    const mergeGuestCart = async () => {
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      if (guestCart.length) {
+        for (let item of guestCart) {
+          await api.addToCart(item.product._id, item.quantity, item.selectedSize, item.selectedColor);
+        }
+        localStorage.removeItem('guestCart');
+      }
+    };
+    if (authState.isAuthenticated) {
+      mergeGuestCart();
+    }
+  }, [authState.isAuthenticated]);
+
+  // Sync functions
   const syncAddToCart = async (product: Product, selectedSize?: string, selectedColor?: string) => {
-    try {
-      await api.addToCart(product._id, 1, selectedSize, selectedColor);
+    if (!authState.isAuthenticated) {
       dispatch({ type: 'ADD_TO_CART', product, selectedSize, selectedColor });
+      return;
+    }
+    try {
+      const newItem = await api.addToCart(product._id, 1, selectedSize, selectedColor);
+      dispatch({ type: 'ADD_TO_CART', product, selectedSize, selectedColor, cartItemId: newItem._id });
     } catch (error) {
       console.error("Failed to add to cart:", error);
     }
   };
 
-  const syncRemoveFromCart = async (productId: string) => {
+  const syncRemoveFromCart = async (cartItemId: string) => {
+    if (!authState.isAuthenticated) {
+      dispatch({ type: 'REMOVE_FROM_CART', cartItemId });
+      return;
+    }
     try {
-      await api.removeFromCart(productId);
-      dispatch({ type: 'REMOVE_FROM_CART', productId });
+      await api.removeFromCart(cartItemId);
+      dispatch({ type: 'REMOVE_FROM_CART', cartItemId });
     } catch (error) {
       console.error("Failed to remove from cart:", error);
     }
   };
 
-  const syncUpdateQuantity = async (productId: string, quantity: number) => {
+  const syncUpdateQuantity = async (cartItemId: string, quantity: number) => {
+    if (!authState.isAuthenticated) {
+      dispatch({ type: 'UPDATE_QUANTITY', cartItemId, quantity });
+      return;
+    }
     try {
-      await api.updateCartItem(productId, quantity);
-      dispatch({ type: 'UPDATE_QUANTITY', productId, quantity });
+      await api.updateCartItem(cartItemId, quantity);
+      dispatch({ type: 'UPDATE_QUANTITY', cartItemId, quantity });
     } catch (error) {
       console.error("Failed to update quantity:", error);
     }
   };
 
-  const syncUpdateSelection = async (productId: string, selectedSize?: string, selectedColor?: string) => {
+  const syncUpdateSelection = async (cartItemId: string, selectedSize?: string, selectedColor?: string) => {
+    if (!authState.isAuthenticated) {
+      dispatch({ type: 'UPDATE_SELECTION', cartItemId, selectedSize, selectedColor });
+      return;
+    }
     try {
-      await api.updateCartItem(productId, 1, selectedSize, selectedColor); // Assuming quantity is 1 for selection update
-      dispatch({ type: 'UPDATE_SELECTION', productId, selectedSize, selectedColor });
+      await api.updateCartItem(cartItemId, 1, selectedSize, selectedColor);
+      dispatch({ type: 'UPDATE_SELECTION', cartItemId, selectedSize, selectedColor });
     } catch (error) {
       console.error("Failed to update selection:", error);
     }
   };
 
   const syncClearCart = async () => {
+    if (!authState.isAuthenticated) {
+      dispatch({ type: 'CLEAR_CART' });
+      return;
+    }
     try {
       await api.clearCart();
       dispatch({ type: 'CLEAR_CART' });
@@ -177,45 +252,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const enhancedDispatch = (action: CartAction) => {
+    switch (action.type) {
+      case 'ADD_TO_CART':
+        syncAddToCart(action.product, action.selectedSize, action.selectedColor);
+        break;
+      case 'REMOVE_FROM_CART':
+        syncRemoveFromCart(action.cartItemId);
+        break;
+      case 'UPDATE_QUANTITY':
+        syncUpdateQuantity(action.cartItemId, action.quantity);
+        break;
+      case 'UPDATE_SELECTION':
+        syncUpdateSelection(action.cartItemId, action.selectedSize, action.selectedColor);
+        break;
+      case 'CLEAR_CART':
+        syncClearCart();
+        break;
+      default:
+        dispatch(action);
+    }
+  };
+
   const totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = state.items.reduce((total, item) => total + item.product.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider
-      value={{
-        state,
-        dispatch: (action) => {
-          // Override dispatch to sync with backend
-          switch (action.type) {
-            case 'ADD_TO_CART':
-              syncAddToCart(action.product, action.selectedSize, action.selectedColor);
-              break;
-            case 'REMOVE_FROM_CART':
-              syncRemoveFromCart(action.productId);
-              break;
-            case 'UPDATE_QUANTITY':
-              syncUpdateQuantity(action.productId, action.quantity);
-              break;
-            case 'UPDATE_SELECTION':
-              syncUpdateSelection(action.productId, action.selectedSize, action.selectedColor);
-              break;
-            case 'CLEAR_CART':
-              syncClearCart();
-              break;
-            case 'TOGGLE_CART':
-              dispatch({ type: 'TOGGLE_CART' });
-              break;
-            case 'CLOSE_CART':
-              dispatch({ type: 'CLOSE_CART' });
-              break;
-            default:
-              dispatch(action);
-          }
-        },
-        totalItems,
-        totalPrice,
-      }}
-    >
+    <CartContext.Provider value={{ state, dispatch: enhancedDispatch, totalItems, totalPrice }}>
       {children}
     </CartContext.Provider>
   );
@@ -223,8 +286,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
+  if (!context) throw new Error('useCart must be used within a CartProvider');
   return context;
 }
