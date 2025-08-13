@@ -109,7 +109,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     isOpen: false,
   });
 
-  // Load cart on auth change
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -123,20 +122,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (authState.isAuthenticated) {
       fetchData();
     } else {
-      // Load guest cart from localStorage
       const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
       dispatch({ type: 'SET_CART', items: guestCart });
     }
   }, [authState.isAuthenticated]);
 
-  // Save guest cart in localStorage when not logged in
   useEffect(() => {
     if (!authState.isAuthenticated) {
       localStorage.setItem('guestCart', JSON.stringify(state.items));
     }
   }, [state.items, authState.isAuthenticated]);
 
-  // Merge guest cart into backend on login
   useEffect(() => {
     const mergeGuestCart = async () => {
       const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
@@ -152,7 +148,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [authState.isAuthenticated]);
 
-  // Sync functions
   const syncAddToCart = async (product: Product, selectedSize?: string, selectedColor?: string) => {
     if (!authState.isAuthenticated) {
       dispatch({ type: 'ADD_TO_CART', product, selectedSize, selectedColor });

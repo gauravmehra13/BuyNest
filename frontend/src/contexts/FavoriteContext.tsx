@@ -34,7 +34,7 @@ function favoritesReducer(state: FavoritesState, action: FavoritesAction): Favor
 
         case 'ADD_TO_FAVORITES': {
             const exists = state.items.some(fav => fav.product._id === action.product._id);
-            if (exists) return state; // Prevent duplicates
+            if (exists) return state;
             return {
                 ...state,
                 items: [
@@ -71,7 +71,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         isOpen: false,
     });
 
-    // Load favorites on auth change
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -90,14 +89,12 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         }
     }, [authState.isAuthenticated]);
 
-    // Save guest favorites to localStorage
     useEffect(() => {
         if (!authState.isAuthenticated) {
             localStorage.setItem('guestFavorites', JSON.stringify(state.items));
         }
     }, [state.items, authState.isAuthenticated]);
 
-    // Merge guest favorites into backend on login
     useEffect(() => {
         const mergeGuestFavorites = async () => {
             const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites') || '[]');
@@ -113,7 +110,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         }
     }, [authState.isAuthenticated]);
 
-    // Sync functions
     const syncAddToFavorites = async (product: Product) => {
         if (!authState.isAuthenticated) {
             dispatch({ type: 'ADD_TO_FAVORITES', product });
@@ -140,8 +136,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         }
     };
 
-
-
     const enhancedDispatch = (action: FavoritesAction) => {
         switch (action.type) {
             case 'ADD_TO_FAVORITES':
@@ -150,7 +144,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
             case 'REMOVE_FROM_FAVORITES':
                 syncRemoveFromFavorites(action.favoriteId);
                 break;
-
             default:
                 dispatch(action);
         }

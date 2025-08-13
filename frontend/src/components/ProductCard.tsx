@@ -29,8 +29,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const addToFavorites = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isFavorite) return;  // prevent duplicate add
-    favDispatch({ type: 'ADD_TO_FAVORITES', product });
+    if (isFavorite) {
+      const favoriteItem = favState.items.find(f => f.product._id === product._id);
+      if (favoriteItem) {
+        favDispatch({ type: 'REMOVE_FROM_FAVORITES', favoriteId: favoriteItem._id });
+      }
+    } else {
+      favDispatch({ type: 'ADD_TO_FAVORITES', product });
+    }
   };
   const formattedPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',

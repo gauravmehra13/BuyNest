@@ -70,6 +70,12 @@ exports.updateCartItem = async (req, res) => {
     const { id } = req.params;
     const { quantity, selectedSize, selectedColor } = req.body;
 
+    // If quantity is less than 1, remove the item
+    if (quantity !== undefined && quantity < 1) {
+      await Cart.findOneAndDelete({ _id: id, user: req.user._id });
+      return res.status(200).json({ message: "Item removed from cart" });
+    }
+
     const updatedItem = await Cart.findOneAndUpdate(
       { _id: id, user: req.user._id },
       {

@@ -13,6 +13,11 @@ export interface Product {
   __v: number;
 }
 
+export interface FavoriteItem {
+  _id: string;
+  product: Product;
+}
+
 export interface CartItem {
   _id: string;
   product: Product;
@@ -26,7 +31,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   profilePicture?: string;
   phoneNumber?: string;
   addresses: {
@@ -156,7 +161,7 @@ export interface PastOrder {
   _id: string;
   orderNumber: string;
   totalAmount: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   products: PastOrderProduct[];
   createdAt: string;
 }
@@ -168,6 +173,6 @@ export interface PastOrderDetail extends PastOrder {
   phoneNumber: string;
   address: string;
   cityStateZip: string;
-  transactionStatus: 'Approved' | 'Declined' | 'Gateway Error';
+  transactionStatus: "Approved" | "Declined" | "Gateway Error";
   updatedAt: string;
 }

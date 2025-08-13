@@ -332,7 +332,7 @@ export default function CheckoutPage() {
 
             <div className="space-y-4 mb-6">
               {cartState.items.map((item) => (
-                <div key={item.id} className="flex items-center space-x-3">
+                <div key={item._id} className="flex items-center space-x-3">
                   <img
                     src={item.product.images[0]}
                     alt={item.product.name}

@@ -9,7 +9,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { state: cartState, dispatch: cartDispatch } = useCart();
-  const { state: favoritesState, dispatch: favoritesDispatch } = useFavorites();
+  const { state: favState, dispatch: favDispatch } = useFavorites();
   const { state: authState } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -115,13 +115,13 @@ export default function Header() {
 
             {/* Favorites */}
             <button
-              onClick={() => favoritesDispatch({ type: 'TOGGLE_FAVORITES' })}
+              onClick={() => favDispatch({ type: 'TOGGLE_FAVORITES' })}
               className="relative p-1.5 lg:p-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
               <Heart className="h-5 w-5 lg:h-6 lg:w-6" />
-              {favoritesState.items.length > 0 && (
+              {favState.items.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-4 lg:h-5 w-4 lg:w-5 flex items-center justify-center">
-                  {favoritesState.items.length}
+                  {favState.items.length}
                 </span>
               )}
             </button>

@@ -225,32 +225,33 @@ export const api = {
 
   addToCart: async (productId: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
     const response = await axiosInstance.post('/cart/add', { productId, quantity, selectedSize, selectedColor });
-    return response.data; // should return CartItem from backend
+    return response.data; 
   },
 
-removeFromCart: async (cartItemId: string) => {
-  const response = await axiosInstance.delete(`/cart/remove/${cartItemId}`);
-  return response.data;
-},
-
-updateCartItem: async (cartItemId: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
-  const response = await axiosInstance.put(`/cart/update/${cartItemId}`, { quantity, selectedSize, selectedColor });
-  return response.data;
-},
-
-  clearCart: async () => {
-    const response = await axiosInstance.post('/cart/clear');
+  removeFromCart: async (cartItemId: string) => {
+    const response = await axiosInstance.delete(`/cart/remove/${cartItemId}`);
     return response.data;
   },
 
+  updateCartItem: async (cartItemId: string, quantity: number, selectedSize?: string, selectedColor?: string) => {
+    const response = await axiosInstance.put(`/cart/update/${cartItemId}`, { quantity, selectedSize, selectedColor });
+    return response.data;
+  },
+
+  clearCart: async () => {
+      const response = await axiosInstance.post('/cart/clear');
+      return response.data;
+    },
+
+  // Favorite APIs
   getFavorites: async () => {
-    const response = await axiosInstance.get('/favorites'); // No params
-    return response.data; // Should already include populated product
+    const response = await axiosInstance.get('/favorites'); 
+    return response.data; 
   },
   
   addToFavorites: async (productId: string) => {
     const response = await axiosInstance.post('/favorites/add', { productId });
-    return response.data; // { message, favorite }
+    return response.data; 
   },
   
   removeFromFavorites: async (favoriteId: string) => {

@@ -35,9 +35,10 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,#1e1b4b_1%,transparent_50%)]"></div>
         </div>
 
-        <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 min-h-[85vh] items-center py-12 lg:py-16">
-            <div className="w-full max-w-3xl mx-auto lg:mx-0 text-center lg:text-left">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 min-h-[85vh] items-center py-12 lg:py-16">
+            {/* Give text section more width: col-span-7, image col-span-5 */}
+            <div className="w-full max-w-5xl mx-auto lg:mx-0 text-center lg:text-left lg:col-span-7 col-span-12">
               <div className="inline-flex items-center space-x-2 px-3 py-1 mb-6 rounded-full bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-800/20">
                 <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
                 <p className="text-sm text-indigo-300 font-medium">Welcome to BuyNest</p>
@@ -63,12 +64,17 @@ export default function HomePage() {
                   Explore Collection
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-                <Link
-                  to="/products"
+                <button
+                  onClick={() => {
+                    const featuredSection = document.getElementById('featured-products');
+                    if (featuredSection) {
+                      featuredSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                   className="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-gray-300 bg-white/5 rounded-lg hover:bg-white/10 border border-gray-800 transition-colors duration-200"
                 >
                   View Latest
-                </Link>
+                </button>
               </div>
 
               <div className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 border-t border-gray-800 pt-8 max-w-2xl mx-auto lg:mx-0">
@@ -87,7 +93,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="relative lg:block mt-12 lg:mt-0">
+            <div className="relative lg:block mt-12 lg:mt-0 lg:col-span-5 col-span-12">
               <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-2xl"></div>
               <img
                 src="https://images.pexels.com/photos/637076/pexels-photo-637076.jpeg?_gl=1*nxpga9*_ga*OTA0Njg1Mzg0LjE3NTI5MjU4NzY.*_ga_8JE65Q40S6*czE3NTI5MjU4NzUkbzEkZzEkdDE3NTI5MjY5ODkkajU5JGwwJGgw"
@@ -136,7 +142,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 bg-gray-50">
+      <section id="featured-products" className="py-16 bg-gray-50">
         <div className={theme.layout.container}>
           <div className="text-center mb-12">
             <h2 className={`text-3xl font-bold ${theme.text.heading} mb-4`}>Featured Products</h2>

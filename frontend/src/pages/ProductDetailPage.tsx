@@ -7,6 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { theme, commonClasses } from '../styles/theme';
+import { useFavorites } from '../contexts/FavoriteContext';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,9 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { dispatch } = useCart();
+  const { state: favState, dispatch: favDispatch } = useFavorites();
+  const isFavorite = favState.items.some(f => f.product._id === product?._id);
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -72,6 +76,17 @@ export default function ProductDetailPage() {
         selectedSize,
         selectedColor
       });
+    }
+  };
+
+  const toggleFavorite = () => {
+    if (isFavorite) {
+      const favoriteItem = favState.items.find(f => f.product._id === product?._id);
+      if (favoriteItem) {
+        favDispatch({ type: 'REMOVE_FROM_FAVORITES', favoriteId: favoriteItem._id });
+      }
+    } else {
+      favDispatch({ type: 'ADD_TO_FAVORITES', product });
     }
   };
 
@@ -232,8 +247,11 @@ export default function ProductDetailPage() {
                   <span>Add to Cart</span>
                 </button>
 
-                <button className={theme.button.secondary}>
-                  <Heart className="h-5 w-5" />
+                <button
+                  onClick={toggleFavorite}
+                  className={`p-2 rounded-full ${isFavorite ? 'text-red-500' : 'text-gray-600'}`}
+                >
+                  <Heart fill={isFavorite ? 'currentColor' : 'none'} />
                 </button>
               </div>
             </div>

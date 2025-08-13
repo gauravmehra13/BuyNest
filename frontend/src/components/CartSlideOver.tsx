@@ -3,19 +3,18 @@ import { useCart } from '../contexts/CartContext';
 import { Link } from 'react-router-dom';
 
 export default function CartSlideOver() {
-  const { state, dispatch, totalPrice } = useCart();
+  const { state: cartState, dispatch: cartDispatch, totalPrice } = useCart();
 
-  if (!state.isOpen) return null;
+  if (!cartState.isOpen) return null;
 
   const updateQuantity = (cartItemId: string, quantity: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', cartItemId, quantity });
+    cartDispatch({ type: 'UPDATE_QUANTITY', cartItemId, quantity });
   };
-
 
   const removeItem = (cartItemId: string) => {
-    dispatch({ type: 'REMOVE_FROM_CART', cartItemId });
+    cartDispatch({ type: 'REMOVE_FROM_CART', cartItemId });
   };
-  
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -24,10 +23,9 @@ export default function CartSlideOver() {
     }).format(price);
   };
 
-  console.log("state.items", state.items)
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => dispatch({ type: 'CLOSE_CART' })} />
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => cartDispatch({ type: 'CLOSE_CART' })} />
 
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
         <div className="flex h-full flex-col">
@@ -35,7 +33,7 @@ export default function CartSlideOver() {
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">Shopping Cart</h2>
             <button
-              onClick={() => dispatch({ type: 'CLOSE_CART' })}
+              onClick={() => cartDispatch({ type: 'CLOSE_CART' })}
               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
             >
               <X className="h-5 w-5" />
@@ -44,12 +42,12 @@ export default function CartSlideOver() {
 
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-4">
-            {state.items.length === 0 ? (
+            {cartState.items.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">Your cart is empty</p>
                 <Link
                   to="/products"
-                  onClick={() => dispatch({ type: 'CLOSE_CART' })}
+                  onClick={() => cartDispatch({ type: 'CLOSE_CART' })}
                   className="inline-block mt-4 text-blue-600 hover:text-blue-500 font-medium"
                 >
                   Continue Shopping
@@ -57,7 +55,7 @@ export default function CartSlideOver() {
               </div>
             ) : (
               <div className="space-y-4">
-                {state.items && state.items.map((item) => (
+                {cartState.items && cartState.items.map((item) => (
                   <div key={item._id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                     <img
                       src={item.product?.images?.[0] || '/fallback.png'}
@@ -111,7 +109,7 @@ export default function CartSlideOver() {
           </div>
 
           {/* Footer */}
-          {state.items.length > 0 && (
+          {cartState.items.length > 0 && (
             <div className="border-t border-gray-200 p-4 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-base font-medium text-gray-900">Total:</span>
@@ -119,7 +117,7 @@ export default function CartSlideOver() {
               </div>
               <Link
                 to="/checkout"
-                onClick={() => dispatch({ type: 'CLOSE_CART' })}
+                onClick={() => cartDispatch({ type: 'CLOSE_CART' })}
                 className="block w-full bg-blue-600 text-white text-center py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
                 Checkout
