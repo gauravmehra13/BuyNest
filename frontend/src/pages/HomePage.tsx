@@ -5,6 +5,7 @@ import { Product } from '../types';
 import { api } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { theme } from '../styles/theme';
+import { getCachedData, setCachedData } from '../utils/cache';
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -13,8 +14,19 @@ export default function HomePage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        const cacheKey = 'featuredProducts';
+        const cachedProducts = getCachedData(cacheKey) as Product[] | null;
+
+        if (cachedProducts) {
+          setFeaturedProducts(cachedProducts);
+          setLoading(false);
+          return;
+        }
+
         const products = await api.getAllProducts();
-        setFeaturedProducts(products.slice(0, 4));
+        const featured = (products as Product[]).slice(0, 4);
+        setFeaturedProducts(featured);
+        setCachedData(cacheKey, featured);
       } catch (error) {
         console.error('Failed to fetch products:', error);
       } finally {

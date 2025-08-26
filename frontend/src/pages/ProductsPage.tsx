@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { useSearchParams } from 'react-router-dom';
 import { theme, commonClasses } from '../styles/theme';
+import { getCachedData, setCachedData } from '../utils/cache';
 
 export default function ProductsPage() {
   const [searchParams] = useSearchParams();
@@ -18,19 +19,31 @@ export default function ProductsPage() {
 
   const searchQuery = searchParams.get('search') || '';
 
+
+
+  // Fetch products (uses cache, and after cache expiry, fetches new products from API)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        let fetchedProducts;
+        const cacheKey = searchQuery ? `searchProducts_${searchQuery}` : 'allProducts';
+        const cachedProducts = getCachedData(cacheKey) as Product[] | null;
 
+        if (cachedProducts) {
+          setProducts(cachedProducts);
+          setLoading(false);
+          return;
+        }
+
+        let fetchedProducts: Product[];
         if (searchQuery) {
-          fetchedProducts = await api.searchProducts(searchQuery);
+          fetchedProducts = await api.searchProducts(searchQuery) as Product[];
         } else {
-          fetchedProducts = await api.getAllProducts();
+          fetchedProducts = await api.getAllProducts() as Product[];
         }
 
         setProducts(fetchedProducts);
+        setCachedData(cacheKey, fetchedProducts);
       } catch (error) {
         console.error('Failed to fetch products:', error);
       } finally {

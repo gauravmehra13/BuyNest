@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, Heart, } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useFavorites } from '../contexts/FavoriteContext';
+import { useDebounce } from '../hooks/useDebounce';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +14,19 @@ export default function Header() {
   const { state: authState } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  // Update URL search param when debounced search query changes
+  useEffect(() => {
+    if (location.pathname === '/products') {
+      if (debouncedSearchQuery.trim()) {
+        navigate(`/products?search=${encodeURIComponent(debouncedSearchQuery.trim())}`);
+      } else {
+        navigate('/products');
+      }
+    }
+  }, [debouncedSearchQuery, navigate, location.pathname]);
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -32,10 +46,6 @@ export default function Header() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-
-    if (location.pathname === '/products' && !value.trim()) {
-      navigate('/products');
-    }
   };
 
   const clearSearch = () => {
