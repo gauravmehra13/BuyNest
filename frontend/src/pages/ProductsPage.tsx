@@ -115,7 +115,7 @@ export default function ProductsPage() {
 
           <div className="flex items-center space-x-4">
             {/* View Mode Toggle */}
-            <div className="flex border border-gray-300 rounded-lg">
+            <div className="hidden md:flex border border-gray-300 rounded-lg">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 ${viewMode === 'grid' ? theme.gradients.primary + ' text-white' : theme.text.body}`}
@@ -145,7 +145,7 @@ export default function ProductsPage() {
             {/* Filters Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={theme.button.secondary}
+              className={`${theme.button.secondary} md:hidden`}
             >
               <Filter className="h-5 w-5" />
               <span>Filters</span>
