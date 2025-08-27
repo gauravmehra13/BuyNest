@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, ErrorResponse } from '../types';
 import { authAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface AuthState {
   user: User | null;
@@ -67,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: true,
         isLoading: false
       }));
+      toast.success('Logged in successfully!');
     } catch (error) {
       const errorMsg = (error as ErrorResponse).message || 'Login failed';
       setState(prev => ({
@@ -74,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: errorMsg,
         isLoading: false
       }));
+      toast.error(errorMsg);
       throw new Error(errorMsg);
     }
   };
@@ -109,12 +112,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading: false,
         error: null
       });
+      toast.success('Logged out successfully!');
     } catch (error) {
       setState(prev => ({
         ...prev,
         error: 'Logout failed',
         isLoading: false
       }));
+      toast.error('Logout failed');
     }
   };
 

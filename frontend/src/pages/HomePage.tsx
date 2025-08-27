@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, Shield, Headphones, RefreshCw } from 'lucide-react';
+import { ArrowRight, Truck, Shield, Headphones, RefreshCw, Star, ShoppingBag } from 'lucide-react';
 import { Product } from '../types';
 import { api } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { theme } from '../styles/theme';
 import { getCachedData, setCachedData } from '../utils/cache';
+import toast from 'react-hot-toast';
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -37,10 +38,62 @@ export default function HomePage() {
     fetchProducts();
   }, []);
 
+  const NewsletterSection = () => {
+    const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!email) {
+        toast.error('Please enter your email.');
+        return;
+      }
+
+      setIsLoading(true);
+
+      setTimeout(() => {
+        setIsLoading(false);
+        toast.success('Thank you for subscribing!');
+        setEmail('');
+      }, 2000);
+    };
+
+    return (
+      <section className="py-16 bg-gray-900 text-white">
+        <div className={theme.layout.container}>
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
+            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+              Subscribe to our newsletter to get the latest updates on new products and exclusive offers.
+            </p>
+            <form onSubmit={handleSubscribe} className="max-w-md mx-auto flex space-x-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={theme.input.base}
+              />
+              <button
+                type="submit"
+                disabled={!email || isLoading}
+                className={`${theme.button.primary} ${(isLoading || !email) ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+              >
+                {isLoading ? 'Subscribing...' : 'Subscribe'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative bg-[#0A0A0A]">
+      <section className="relative bg-[#0A0A0A] overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#0D0D0D] to-black"></div>
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#312e81_1%,transparent_50%)]"></div>
@@ -49,69 +102,98 @@ export default function HomePage() {
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 min-h-[85vh] items-center py-12 lg:py-16">
-            {/* Give text section more width: col-span-7, image col-span-5 */}
             <div className="w-full max-w-5xl mx-auto lg:mx-0 text-center lg:text-left lg:col-span-7 col-span-12">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 mb-6 rounded-full bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-800/20">
+              <div className="inline-flex items-center space-x-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-800/30 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
                 <p className="text-sm text-indigo-300 font-medium">Welcome to BuyNest</p>
+                <ShoppingBag className="w-4 h-4 text-indigo-400" />
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight lg:leading-[1.2]">
-                <span className="text-white">Discover</span>
-                <span className="block mt-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                  Premium Products
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight lg:leading-[1.1]">
+                <span className="text-white">Your Premium</span>
+                <span className="block mt-2 relative">
+                  <span className="relative z-10 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
+                    Shopping Nest
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse opacity-20 -z-10"></span>
                 </span>
               </h1>
 
-              <p className="mt-6 lg:mt-8 text-base sm:text-lg text-gray-400 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Explore our curated collection of premium products. Quality meets elegance,
-                delivered right to your doorstep with unmatched service and style.
+              <p className="mt-6 lg:mt-8 text-base sm:text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                Discover handpicked premium products that blend luxury with functionality. Experience shopping redefined
+                with our curated collection of exceptional items.
               </p>
 
               <div className="mt-8 lg:mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link
-                  to="/products"
-                  className="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transform transition-all duration-200 shadow-[0_0_20px_rgba(79,70,229,0.2)] hover:shadow-[0_0_25px_rgba(79,70,229,0.3)]"
-                >
+                <Link to="/products" className="group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-700 transform transition-all duration-300 shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:shadow-[0_0_40px_rgba(79,70,229,0.5)] hover:scale-105 bg-size-200 hover:bg-pos-100">
                   Explore Collection
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
-                <button
+                <button className="inline-flex items-center justify-center px-8 py-4 text-base font-medium text-gray-300 bg-white/5 rounded-xl hover:bg-white/10 border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300 backdrop-blur-sm"
                   onClick={() => {
                     const featuredSection = document.getElementById('featured-products');
                     if (featuredSection) {
                       featuredSection.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
-                  className="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-gray-300 bg-white/5 rounded-lg hover:bg-white/10 border border-gray-800 transition-colors duration-200"
                 >
                   View Latest
                 </button>
               </div>
 
-              <div className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 border-t border-gray-800 pt-8 max-w-2xl mx-auto lg:mx-0">
-                <div>
-                  <p className="text-2xl sm:text-3xl font-bold text-white">2K+</p>
-                  <p className="mt-2 text-sm text-gray-400">Active Users</p>
+              <div className="mt-12 flex flex-wrap justify-center lg:justify-start gap-6 text-sm text-gray-400">
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-indigo-400" />
+                  <span>Secure Payments</span>
                 </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-bold text-white">500+</p>
-                  <p className="mt-2 text-sm text-gray-400">Products</p>
+                <div className="flex items-center space-x-2">
+                  <Truck className="w-4 h-4 text-indigo-400" />
+                  <span>Fast Delivery</span>
                 </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-bold text-white">98%</p>
-                  <p className="mt-2 text-sm text-gray-400">Satisfaction</p>
+                <div className="flex items-center space-x-2">
+                  <Star className="w-4 h-4 text-indigo-400" />
+                  <span>Premium Quality</span>
+                </div>
+              </div>
+
+              <div className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 border-t border-gray-800/50 pt-8 max-w-2xl mx-auto lg:mx-0">
+                <div className="text-center lg:text-left">
+                  <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                    10K+
+                  </p>
+                  <p className="mt-2 text-sm text-gray-400">Happy Customers</p>
+                </div>
+                <div className="text-center lg:text-left">
+                  <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    1K+
+                  </p>
+                  <p className="mt-2 text-sm text-gray-400">Premium Products</p>
+                </div>
+                <div className="text-center lg:text-left">
+                  <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                    99%
+                  </p>
+                  <p className="mt-2 text-sm text-gray-400">Satisfaction Rate</p>
                 </div>
               </div>
             </div>
 
             <div className="relative lg:block mt-12 lg:mt-0 lg:col-span-5 col-span-12">
-              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-2xl"></div>
-              <img
-                src="https://images.pexels.com/photos/637076/pexels-photo-637076.jpeg?_gl=1*nxpga9*_ga*OTA0Njg1Mzg0LjE3NTI5MjU4NzY.*_ga_8JE65Q40S6*czE3NTI5MjU4NzUkbzEkZzEkdDE3NTI5MjY5ODkkajU5JGwwJGgw"
-                alt="Featured Product"
-                className="relative w-full max-w-xl mx-auto rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 border border-gray-800/50"
-              />
+              <div className="absolute -inset-6 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-3xl animate-pulse"></div>
+              <div className="relative">
+                <img
+                  src="https://images.pexels.com/photos/637076/pexels-photo-637076.jpeg?_gl=1*nxpga9*_ga*OTA0Njg1Mzg0LjE3NTI5MjU4NzY.*_ga_8JE65Q40S6*czE3NTI5MjU4NzUkbzEkZzEkdDE3NTI5MjY5ODkkajU5JGwwJGgw"
+                  alt="Premium Products Showcase"
+                  className="relative w-full max-w-xl mx-auto rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-700 border border-gray-700/30 hover:border-indigo-500/30"
+                />
+                {/* Floating product cards */}
+                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-indigo-600/90 to-purple-600/90 backdrop-blur-sm rounded-xl p-3 border border-indigo-500/30 animate-bounce">
+                  <Star className="w-5 h-5 text-yellow-400" />
+                </div>
+                <div className="absolute -bottom-4 -left-4 bg-gradient-to-r from-purple-600/90 to-pink-600/90 backdrop-blur-sm rounded-xl p-3 border border-purple-500/30 animate-pulse">
+                  <ShoppingBag className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -196,29 +278,7 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 bg-gray-900 text-white">
-        <div className={theme.layout.container}>
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
-            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-              Subscribe to our newsletter to get the latest updates on new products and exclusive offers.
-            </p>
-            <form className="max-w-md mx-auto flex space-x-4">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className={theme.input.base}
-              />
-              <button
-                type="submit"
-                className={theme.button.primary}
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
+      <NewsletterSection />
     </div>
   );
 }

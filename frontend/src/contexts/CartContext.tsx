@@ -2,6 +2,7 @@ import React, { createContext, useContext, useReducer, ReactNode, useEffect } fr
 import { CartItem, Product } from '../types';
 import { api } from '../services/api';
 import { useAuth } from './AuthContext';
+import toast from 'react-hot-toast';
 
 interface CartState {
   items: CartItem[];
@@ -151,26 +152,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const syncAddToCart = async (product: Product, selectedSize?: string, selectedColor?: string) => {
     if (!authState.isAuthenticated) {
       dispatch({ type: 'ADD_TO_CART', product, selectedSize, selectedColor });
+      toast.success('Added to cart!', { id: 'add-to-cart' });
       return;
     }
     try {
       const newItem = await api.addToCart(product._id, 1, selectedSize, selectedColor);
       dispatch({ type: 'ADD_TO_CART', product, selectedSize, selectedColor, cartItemId: newItem._id });
+      toast.success('Added to cart!', { id: 'add-to-cart' });
     } catch (error) {
       console.error("Failed to add to cart:", error);
+      toast.error('Failed to add to cart', { id: 'add-to-cart' });
     }
   };
 
   const syncRemoveFromCart = async (cartItemId: string) => {
     if (!authState.isAuthenticated) {
       dispatch({ type: 'REMOVE_FROM_CART', cartItemId });
+      toast.success('Removed from cart!');
       return;
     }
     try {
       await api.removeFromCart(cartItemId);
       dispatch({ type: 'REMOVE_FROM_CART', cartItemId });
+      toast.success('Removed from cart!');
     } catch (error) {
       console.error("Failed to remove from cart:", error);
+      toast.error('Failed to remove from cart');
     }
   };
 
@@ -203,13 +210,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const syncClearCart = async () => {
     if (!authState.isAuthenticated) {
       dispatch({ type: 'CLEAR_CART' });
+     
       return;
     }
     try {
       await api.clearCart();
       dispatch({ type: 'CLEAR_CART' });
+     
     } catch (error) {
       console.error("Failed to clear cart:", error);
+      
     }
   };
 

@@ -25,6 +25,13 @@ export const theme = {
     section: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12",
     container: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
   },
+  toast: {
+    base: 'border border-white/20 p-4 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
+    success: 'bg-green-500 text-white',
+    error: 'bg-red-500 text-white',
+    loading: 'bg-blue-500 text-white',
+    default: 'bg-gray-800 text-white',
+  },
 } as const;
 
 // Common class combinations

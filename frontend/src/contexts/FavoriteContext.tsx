@@ -2,6 +2,7 @@ import React, { createContext, useContext, useReducer, ReactNode, useEffect } fr
 import { Product } from '../types';
 import { api } from '../services/api';
 import { useAuth } from './AuthContext';
+import toast from 'react-hot-toast';
 
 interface Favorite {
     _id: string;
@@ -113,26 +114,32 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     const syncAddToFavorites = async (product: Product) => {
         if (!authState.isAuthenticated) {
             dispatch({ type: 'ADD_TO_FAVORITES', product });
+            toast.success('Added to favorites!', { id: 'add-to-favorites' });
             return;
         }
         try {
             const newFav = await api.addToFavorites(product._id);
             dispatch({ type: 'ADD_TO_FAVORITES', product, favoriteId: newFav._id });
+            toast.success('Added to favorites!', { id: 'add-to-favorites' });
         } catch (error) {
             console.error("Failed to add to favorites:", error);
+            toast.error('Failed to add to favorites', { id: 'add-to-favorites' });
         }
     };
 
     const syncRemoveFromFavorites = async (favoriteId: string) => {
         if (!authState.isAuthenticated) {
             dispatch({ type: 'REMOVE_FROM_FAVORITES', favoriteId });
+            toast.success('Removed from favorites!');
             return;
         }
         try {
             await api.removeFromFavorites(favoriteId);
             dispatch({ type: 'REMOVE_FROM_FAVORITES', favoriteId });
+            toast.success('Removed from favorites!');
         } catch (error) {
             console.error("Failed to remove from favorites:", error);
+            toast.error('Failed to remove from favorites');
         }
     };
 

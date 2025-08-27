@@ -3,6 +3,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { FavoritesProvider } from './contexts/FavoriteContext';
+import { Toaster } from 'react-hot-toast';
+import { toastConfig } from './utils/toastConfig';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -54,6 +56,7 @@ function App() {
               </main>
 
               <Footer />
+              <Toaster {...toastConfig} />
             </div>
           </Router>
         </FavoritesProvider>
