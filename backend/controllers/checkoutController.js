@@ -1,3 +1,4 @@
+const stripe = require("../config/stripe"); // Import Stripe
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const sendOrderEmail = require("../config/sendgrid");
@@ -14,19 +15,34 @@ exports.processCheckout = async (req, res) => {
       cityStateZip,
       products,
       totalAmount,
-      transactionType,
+      paymentMethodId, // Payment method ID from the frontend
     } = req.body;
 
+    // Create a Payment Intent with Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(totalAmount * 100),
+      currency: "inr",
+      payment_method: paymentMethodId,
+      confirm: true,
+      description: `Order for ${customerName} (${email})`,
+      metadata: {
+        orderNumber: uuidv4(),
+      },
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: "never",
+      },
+    });
+
+    // Handle payment status
     let transactionStatus;
-    switch (transactionType) {
-      case "1":
+    switch (paymentIntent.status) {
+      case "succeeded":
         transactionStatus = "Approved";
         break;
-      case "2":
+      case "requires_action":
+      case "requires_payment_method":
         transactionStatus = "Declined";
-        break;
-      case "3":
-        transactionStatus = "Gateway Error";
         break;
       default:
         transactionStatus = "Gateway Error";
@@ -62,6 +78,7 @@ exports.processCheckout = async (req, res) => {
     res.json({
       message: `Transaction ${transactionStatus}`,
       orderNumber: newOrder.orderNumber,
+      paymentIntentId: paymentIntent.id, // Return the Payment Intent ID for reference
     });
   } catch (error) {
     console.error(error);

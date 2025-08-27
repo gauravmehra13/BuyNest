@@ -62,6 +62,7 @@ export default function FavoritesSlideOver() {
                     <img
                       src={favorite.product.images[0]}
                       alt={favorite.product.name}
+                      loading='lazy'
                       className="w-16 h-16 object-cover rounded-lg"
                     />
                     <div className="flex-1">

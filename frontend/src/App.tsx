@@ -17,10 +17,11 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import CheckoutPage from './pages/CheckoutPage';
+// import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import AccountPage from './pages/AccountPage';
 import NotFound from './pages/NotFound';
+import StripeCheckoutPage from './pages/StripeCheckoutPage';
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function App() {
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
+                  {/* <Route path="/checkout" element={<CheckoutPage />} /> */}
                   <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />
                   <Route
                     path="/account/*"
@@ -51,6 +52,7 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                  <Route path="/checkout" element={<StripeCheckoutPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

@@ -27,6 +27,7 @@
     "mongoose": "^8.15.1",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.3",
+    "stripe": "^18.4.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

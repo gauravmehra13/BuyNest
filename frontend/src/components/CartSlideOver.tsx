@@ -58,6 +58,7 @@ export default function CartSlideOver() {
                 {cartState.items && cartState.items.map((item) => (
                   <div key={item._id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                     <img
+                      loading='lazy'
                       src={item.product?.images?.[0] || '/fallback.png'}
                       alt={item.product?.name || 'Product image'}
                       className="w-16 h-16 object-cover rounded-lg"

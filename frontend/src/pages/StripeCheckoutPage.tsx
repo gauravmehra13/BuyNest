@@ -1,29 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
-import { CheckoutPayload } from '../types';
-import { CreditCard, Truck, CheckCircle, AlertCircle } from 'lucide-react';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import stripePromise from '../utils/stripe';
 import { theme, commonClasses } from '../styles/theme';
 import { useCart } from '../hooks/useCart';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { CreditCard, Truck, CheckCircle, AlertCircle } from 'lucide-react';
+import { api } from '../services/api'; 
 
-interface FormErrors {
-  [key: string]: string;
-}
-
-export default function CheckoutPage() {
+const StripeCheckoutForm = () => {
+  const stripe = useStripe();
+  const elements = useElements();
   const { state: cartState, dispatch, totalPrice } = useCart();
   const { state: authState } = useAuth();
-  const navigate = useNavigate();
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authState.isAuthenticated) {
-      navigate('/login', { state: { from: '/checkout' } });
-    }
-  }, [authState.isAuthenticated, navigate]);
-
-  // Pre-fill form with user data if available
   const [formData, setFormData] = useState({
     firstName: authState.user?.firstName || '',
     lastName: authState.user?.lastName || '',
@@ -34,21 +23,21 @@ export default function CheckoutPage() {
     state: authState.user?.addresses.find(addr => addr.isDefault)?.state || '',
     zipCode: authState.user?.addresses.find(addr => addr.isDefault)?.zipCode || '',
     country: 'IN',
-
-    // Payment fields
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardName: ''
   });
-
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authState.isAuthenticated) {
+      navigate('/login', { state: { from: '/checkout' } });
+    }
+  }, [authState.isAuthenticated, navigate]);
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Shipping validation
+    const newErrors: { [key: string]: string } = {};
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.trim()) {
@@ -59,8 +48,6 @@ export default function CheckoutPage() {
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone is required';
     } else {
-      // Phone validation: Allow +, country code, and 7-15 digits
-      // Example valid formats: +919876543210, 919876543210, +1234567890
       const phoneRegex = /^\+?[1-9]\d{7,14}$/;
       if (!phoneRegex.test(formData.phone.replace(/\s+/g, ''))) {
         newErrors.phone = 'Please enter a valid phone number with country code';
@@ -74,61 +61,13 @@ export default function CheckoutPage() {
     } else if (!/^[A-Za-z0-9\s-]{3,10}$/.test(formData.zipCode)) {
       newErrors.zipCode = 'ZIP/Postal code is invalid';
     }
-
-    // Payment validation
-    if (!formData.cardNumber.trim()) {
-      newErrors.cardNumber = 'Card number is required';
-    } else if (!/^\d{4}\s?\d{4}\s?\d{4}\s?\d{4}$/.test(formData.cardNumber.replace(/\s/g, ''))) {
-      newErrors.cardNumber = 'Card number is invalid';
-    }
-
-    if (!formData.expiryDate.trim()) {
-      newErrors.expiryDate = 'Expiry date is required';
-    } else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(formData.expiryDate)) {
-      newErrors.expiryDate = 'Expiry date must be MM/YY format';
-    } else {
-      const [month, year] = formData.expiryDate.split('/');
-      const expiry = new Date(2000 + parseInt(year), parseInt(month) - 1);
-      if (expiry < new Date()) {
-        newErrors.expiryDate = 'Card has expired';
-      }
-    }
-
-    if (!formData.cvv.trim()) {
-      newErrors.cvv = 'CVV is required';
-    } else if (!/^\d{3,4}$/.test(formData.cvv)) {
-      newErrors.cvv = 'CVV must be 3 or 4 digits';
-    }
-
-    if (!formData.cardName.trim()) newErrors.cardName = 'Name on card is required';
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    // Format card number with spaces
-    if (name === 'cardNumber') {
-      const formatted = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
-      setFormData({ ...formData, [name]: formatted });
-    }
-    // Format expiry date
-    else if (name === 'expiryDate') {
-      const formatted = value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2');
-      setFormData({ ...formData, [name]: formatted });
-    }
-    // Format phone number - just remove spaces and keep the raw number with + if present
-    else if (name === 'phone') {
-      const formatted = value.replace(/[^\d+]/g, '');
-      setFormData({ ...formData, [name]: formatted });
-    }
-    else {
-      setFormData({ ...formData, [name]: value });
-    }
-
-    // Clear error when user starts typing
+    setFormData({ ...formData, [name]: value });
     if (errors[name]) {
       setErrors({ ...errors, [name]: '' });
     }
@@ -142,31 +81,58 @@ export default function CheckoutPage() {
     }).format(amount);
   };
 
+  const shipping = 0; // Free shipping
+  const tax = totalPrice * 0.08; // 8% tax
+  const total = totalPrice + shipping + tax;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStripeError(null);
 
-    if (!validateForm()) {
-      return;
-    }
-
-    if (!authState.user?._id) {
-      setErrors({ submit: 'Please log in to complete your purchase' });
-      return;
-    }
+    if (!validateForm()) return;
+    if (!stripe || !elements) return;
 
     setIsProcessing(true);
 
     try {
-      // Prepare checkout payload
-      const checkoutPayload: CheckoutPayload = {
-        user: authState.user._id, // Required user ID
+      // Create Stripe payment method
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        setStripeError('Card details are incomplete.');
+        setIsProcessing(false);
+        return;
+      }
+      const { error: stripeErr, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+        billing_details: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone,
+          address: {
+            line1: formData.address,
+            city: formData.city,
+            state: formData.state,
+            postal_code: formData.zipCode,
+            country: formData.country,
+          }
+        }
+      });
+      if (stripeErr) {
+        setStripeError(stripeErr.message || 'Payment failed. Please try again.');
+        setIsProcessing(false);
+        return;
+      }
+
+      const checkoutPayload = {
+        user: authState.user?._id,
         products: cartState.items.map(item => ({
           productId: item.product._id,
           name: item.product.name,
           quantity: item.quantity,
           price: item.product.price,
           selectedSize: item.selectedSize,
-          selectedColor: item.selectedColor
+          selectedColor: item.selectedColor,
         })),
         totalAmount: total,
         customerName: `${formData.firstName} ${formData.lastName}`,
@@ -174,46 +140,23 @@ export default function CheckoutPage() {
         phoneNumber: formData.phone.replace(/\s+/g, ''),
         address: formData.address,
         cityStateZip: `${formData.city}, ${formData.state} ${formData.zipCode}`,
-        cardNumber: formData.cardNumber.replace(/\s/g, ''),
-        expiryDate: formData.expiryDate.replace('/', '-'),
-        cvv: formData.cvv,
-        transactionType: "1" // 1 = Approved, 2 = Declined, 3 = Gateway Error
+        paymentMethodId: paymentMethod.id,
       };
-
-      console.log('Sending checkout payload:', checkoutPayload); // Add this for debugging
 
       const response = await api.checkout(checkoutPayload);
 
-      // Clear cart and redirect
       dispatch({ type: 'CLEAR_CART' });
       navigate(`/order-confirmation/${response.orderNumber}`);
-    } catch (error) {
-      console.error('Checkout failed:', error);
-      setErrors({ submit: 'Payment processing failed. Please try again.' });
+    } catch (error: any) {
+      setStripeError(
+        error?.response?.data?.message ||
+        error?.message ||
+        'Checkout failed. Please try again.'
+      );
     } finally {
       setIsProcessing(false);
     }
   };
-
-  const shipping = 0; // Free shipping
-  const tax = totalPrice * 0.08; // 8% tax
-  const total = totalPrice + shipping + tax;
-
-  if (cartState.items.length === 0) {
-    return (
-      <div className={`min-h-screen ${commonClasses.flexCenter} ${commonClasses.pageContainer}`}>
-        <div className="text-center">
-          <h1 className={`text-2xl ${theme.text.heading} mb-4`}>Your cart is empty</h1>
-          <button
-            onClick={() => navigate('/products')}
-            className={theme.button.primary}
-          >
-            Continue Shopping
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const inputClasses = (fieldName: string) => `${theme.input.base} ${errors[fieldName] ? 'border-red-500' : ''}`;
 
@@ -221,14 +164,12 @@ export default function CheckoutPage() {
     <div className={commonClasses.pageContainer}>
       <div className={theme.layout.section}>
         <h1 className={`text-3xl ${theme.text.heading} mb-8`}>Checkout</h1>
-
-        {errors.submit && (
+        {stripeError && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center">
             <AlertCircle className="h-5 w-5 mr-2" />
-            {errors.submit}
+            {stripeError}
           </div>
         )}
-
         <div className="grid md:grid-cols-3 gap-8">
           {/* Form */}
           <div className="md:col-span-2">
@@ -239,7 +180,6 @@ export default function CheckoutPage() {
                   <Truck className="h-5 w-5 text-primary-600" />
                   <h2 className={`text-xl ${theme.text.heading}`}>Shipping Information</h2>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
                     { name: 'firstName', label: 'First Name', type: 'text' },
@@ -270,74 +210,61 @@ export default function CheckoutPage() {
                   ))}
                 </div>
               </div>
-
               {/* Payment Information */}
               <div className={theme.card.base + " p-6"}>
                 <div className={commonClasses.flexVerticalCenter + " space-x-2 mb-6"}>
                   <CreditCard className="h-5 w-5 text-primary-600" />
                   <h2 className={`text-xl ${theme.text.heading}`}>Payment Information</h2>
                 </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  {[
-                    { name: 'cardNumber', label: 'Card Number', type: 'text', placeholder: '1234 5678 9012 3456', span: true, maxLength: 19 },
-                    { name: 'expiryDate', label: 'Expiry Date', type: 'text', placeholder: 'MM/YY', maxLength: 5 },
-                    { name: 'cvv', label: 'CVV', type: 'text', placeholder: '123', maxLength: 4 },
-                    { name: 'cardName', label: 'Name on Card', type: 'text', span: true }
-                  ].map((field) => (
-                    <div key={field.name} className={field.span ? 'md:col-span-2' : ''}>
-                      <label className={`block text-sm font-medium ${theme.text.heading} mb-2`}>
-                        {field.label} *
-                      </label>
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name as keyof typeof formData]}
-                        onChange={handleInputChange}
-                        placeholder={field.placeholder}
-                        maxLength={field.maxLength}
-                        className={inputClasses(field.name)}
-                      />
-                      {errors[field.name] && (
-                        <p className="mt-1 text-sm text-red-600">{errors[field.name]}</p>
-                      )}
-                    </div>
-                  ))}
+                <div className="mb-4">
+                  <CardElement
+                    options={{
+                      style: {
+                        base: {
+                          fontSize: '16px',
+                          color: '#424770',
+                          '::placeholder': { color: '#aab7c4' },
+                        },
+                        invalid: { color: '#9e2146' },
+                      },
+                    }}
+                  />
+                  {/* Info box for test card details */}
+                  <div className="mt-2 mb-4 p-3 bg-blue-50 border border-blue-200 rounded flex items-start text-blue-800 text-sm">
+                    <svg className="h-5 w-5 mr-2 mt-0.5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                    </svg>
+                    <span>
+                      <strong>Test Payment Info:</strong><br />
+                      Use card number <span className="font-mono">4242 4242 4242 4242</span>.<br />
+                      <strong>Expiry:</strong> Any future date (e.g., <span className="font-mono">12/34</span>)<br />
+                      <strong>CVC:</strong> Any 3 digits (e.g., <span className="font-mono">123</span>)<br />
+                      <strong>ZIP/Postal Code:</strong> Any <span className="font-mono">5</span> digits (e.g., <span className="font-mono">12345</span>).<br />
+                      <span className="text-xs text-blue-700">Note: For testing, Stripe expects a 5-digit ZIP code, not a 6-digit Indian PIN.</span>
+                    </span>
+                  </div>
                 </div>
               </div>
-
               <button
                 type="submit"
                 disabled={isProcessing}
                 className={`w-full ${theme.button.primary} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {isProcessing ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span>Processing Payment...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="h-5 w-5" />
-                    <span>Complete Order - {formatCurrency(total)}</span>
-                  </>
-                )}
+                {isProcessing ? 'Processing...' : 'Place Order'}
               </button>
             </form>
           </div>
-
           {/* Order Summary */}
           <div className={theme.card.base + " p-6 h-fit"}>
             <h2 className={`text-xl ${theme.text.heading} mb-4`}>Order Summary</h2>
-
             <div className="space-y-4 mb-6">
               {cartState.items.map((item) => (
                 <div key={item._id} className="flex items-center space-x-3">
                   <img
                     src={item.product.images[0]}
                     alt={item.product.name}
+                    loading='lazy'
                     className="w-12 h-12 object-cover rounded"
-                    loading="lazy"
                   />
                   <div className="flex-1">
                     <h3 className={`font-medium ${theme.text.heading} text-sm`}>{item.product.name}</h3>
@@ -355,7 +282,6 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
-
             <div className="border-t pt-4 space-y-2">
               <div className={commonClasses.flexBetween + " text-sm"}>
                 <span className={theme.text.body}>Subtotal</span>
@@ -374,7 +300,6 @@ export default function CheckoutPage() {
                 <span className={theme.text.heading}>{formatCurrency(total)}</span>
               </div>
             </div>
-
             <div className="mt-6 p-4 bg-green-50 rounded-lg">
               <div className="flex items-center text-green-800 text-sm">
                 <CheckCircle className="h-4 w-4 mr-2" />
@@ -386,4 +311,14 @@ export default function CheckoutPage() {
       </div>
     </div>
   );
-}
+};
+
+const StripeCheckoutPage = () => {
+  return (
+    <Elements stripe={stripePromise}>
+      <StripeCheckoutForm />
+    </Elements>
+  );
+};
+
+export default StripeCheckoutPage;

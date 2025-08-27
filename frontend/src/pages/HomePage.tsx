@@ -182,7 +182,8 @@ export default function HomePage() {
               <div className="absolute -inset-6 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-3xl animate-pulse"></div>
               <div className="relative">
                 <img
-                  src="https://images.pexels.com/photos/637076/pexels-photo-637076.jpeg?_gl=1*nxpga9*_ga*OTA0Njg1Mzg0LjE3NTI5MjU4NzY.*_ga_8JE65Q40S6*czE3NTI5MjU4NzUkbzEkZzEkdDE3NTI5MjY5ODkkajU5JGwwJGgw"
+                  src="/hero-section.webp"
+                  loading='lazy'
                   alt="Premium Products Showcase"
                   className="relative w-full max-w-xl mx-auto rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-700 border border-gray-700/30 hover:border-indigo-500/30"
                 />

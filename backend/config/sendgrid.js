@@ -39,7 +39,7 @@ const sendOrderEmail = async (order, transactionStatus, status = null) => {
     typeof order.totalAmount === "number" ? order.totalAmount : 0;
 
   if (transactionStatus === "Approved") {
-    subject = `✅ Order #${order.orderNumber || "N/A"} Confirmed`;
+    subject = `✅Buynest Order #${order.orderNumber || "N/A"} Confirmed`;
     message = `
       <h2>Thank you for your order, ${order.customerName || "Customer"}!</h2>
       <p><strong>Order Number:</strong> ${order.orderNumber || "N/A"}</p>
@@ -58,6 +58,20 @@ const sendOrderEmail = async (order, transactionStatus, status = null) => {
       <ul>${productDetails}</ul>
 
       <p>We will ship your items soon!</p>
+      
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+      
+      <h3>About Buynest</h3>
+      <p>Buynest is your trusted online shopping destination, offering a wide range of high-quality products at competitive prices. We're committed to providing an exceptional shopping experience with fast shipping and excellent customer service.</p>
+      
+      <p><strong>Contact Us:</strong></p>
+      <ul>
+        <li>Email: support@buynest.com</li>
+        <li>Phone: +91 12345 67890</li>
+        <li>Address: 123 Commerce Street, Dehradun, India</li>
+      </ul>
+      
+      <p>Thank you for choosing Buynest!</p>
     `;
   } else if (transactionStatus === "statusUpdate" && status === "delivered") {
     subject = `🎉 Order #${order.orderNumber || "N/A"} Delivered`;
