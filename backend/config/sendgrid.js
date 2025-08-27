@@ -3,7 +3,7 @@ require("dotenv").config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendOrderEmail = async (order, transactionStatus) => {
+const sendOrderEmail = async (order, transactionStatus, status = null) => {
   let subject, message;
 
   const products = Array.isArray(order.products) ? order.products : [];
@@ -58,6 +58,27 @@ const sendOrderEmail = async (order, transactionStatus) => {
       <ul>${productDetails}</ul>
 
       <p>We will ship your items soon!</p>
+    `;
+  } else if (transactionStatus === "statusUpdate" && status === "delivered") {
+    subject = `🎉 Order #${order.orderNumber || "N/A"} Delivered`;
+    message = `
+      <h2>Your order has been delivered, ${order.customerName || "Customer"}!</h2>
+      <p><strong>Order Number:</strong> ${order.orderNumber || "N/A"}</p>
+      <p><strong>Total Amount (incl. taxes):</strong> ₹${totalAmount.toFixed(
+        2
+      )}</p>
+
+      <h3>Customer Details:</h3>
+      <p>Email: ${order.email || "N/A"}</p>
+      <p>Phone: ${order.phoneNumber || "N/A"}</p>
+      <p>Shipping Address: ${order.address || "N/A"}, ${
+      order.cityStateZip || "N/A"
+    }</p>
+
+      <h3>Ordered Products:</h3>
+      <ul>${productDetails}</ul>
+
+      <p>Thank you for shopping with us!</p>
     `;
   } else {
     subject = `❌ Order #${order.orderNumber || "N/A"} Failed`;

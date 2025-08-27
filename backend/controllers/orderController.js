@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const sendOrderEmail = require("../config/sendgrid"); // Import the SendGrid function
 
 exports.getOrderByOrderNumber = async (req, res) => {
   try {
@@ -35,6 +36,11 @@ exports.updateOrderStatus = async (orderId) => {
     if (newStatus !== order.status) {
       order.status = newStatus;
       await order.save();
+
+      // Send email if status is updated to "delivered"
+      if (newStatus === 'delivered') {
+        await sendOrderEmail(order, 'statusUpdate', newStatus);
+      }
     }
   } catch (error) {
     console.error('Error updating order status:', error);
