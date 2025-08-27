@@ -165,7 +165,7 @@ export default function OrderConfirmationPage() {
               </div>
               <div>
                 <p className="font-medium text-gray-500">Shipped</p>
-                <p className="text-sm text-gray-400">Estimated in 1-2 business days</p>
+                <p className="text-sm text-gray-400">Estimated in 3-4 business days</p>
               </div>
             </div>
             
