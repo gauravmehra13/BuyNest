@@ -1,6 +1,6 @@
 import { X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useFavorites } from '../contexts/FavoriteContext';
+import { useFavorites } from '../hooks/useFavorites';
 
 export default function FavoritesSlideOver() {
   const { state: favState, dispatch: favDispatch } = useFavorites();

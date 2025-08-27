@@ -1,6 +1,6 @@
 import { X, Plus, Minus, Trash2 } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
 import { Link } from 'react-router-dom';
+import { useCart } from '../hooks/useCart';
 
 export default function CartSlideOver() {
   const { state: cartState, dispatch: cartDispatch, totalPrice } = useCart();

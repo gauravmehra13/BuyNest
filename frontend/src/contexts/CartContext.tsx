@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import React, { createContext, useReducer, ReactNode, useEffect } from 'react';
 import { CartItem, Product } from '../types';
 import { api } from '../services/api';
-import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
+import { useAuth } from '../hooks/useAuth';
 
 interface CartState {
   items: CartItem[];
@@ -19,7 +19,7 @@ type CartAction =
   | { type: 'CLOSE_CART' }
   | { type: 'SET_CART'; items: CartItem[] };
 
-const CartContext = createContext<{
+export const CartContext = createContext<{
   state: CartState;
   dispatch: React.Dispatch<CartAction>;
   totalItems: number;
@@ -210,16 +210,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const syncClearCart = async () => {
     if (!authState.isAuthenticated) {
       dispatch({ type: 'CLEAR_CART' });
-     
+
       return;
     }
     try {
       await api.clearCart();
       dispatch({ type: 'CLEAR_CART' });
-     
+
     } catch (error) {
       console.error("Failed to clear cart:", error);
-      
+
     }
   };
 
@@ -253,10 +253,4 @@ export function CartProvider({ children }: { children: ReactNode }) {
       {children}
     </CartContext.Provider>
   );
-}
-
-export function useCart() {
-  const context = useContext(CartContext);
-  if (!context) throw new Error('useCart must be used within a CartProvider');
-  return context;
 }

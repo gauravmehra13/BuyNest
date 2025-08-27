@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { CheckoutPayload } from '../types';
 import { CreditCard, Truck, CheckCircle, AlertCircle } from 'lucide-react';
 import { theme, commonClasses } from '../styles/theme';
+import { useCart } from '../hooks/useCart';
+import { useAuth } from '../hooks/useAuth';
 
 interface FormErrors {
   [key: string]: string;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useState, ReactNode, useEffect } from 'react';
 import { User, ErrorResponse } from '../types';
 import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -19,7 +19,7 @@ interface AuthContextType {
   updateUser: (user: User) => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setState(prev => ({ ...prev, isLoading: false }));
           return;
         }
-        
+
         const { user } = await authAPI.getCurrentUser();
         setState(prev => ({
           ...prev,
@@ -140,12 +140,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }

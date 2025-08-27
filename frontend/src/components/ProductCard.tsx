@@ -1,11 +1,10 @@
 import React from 'react';
 import { Star, ShoppingCart, Heart } from 'lucide-react';
 import { Product } from '../types';
-import { useCart } from '../contexts/CartContext';
-import { useFavorites } from '../contexts/FavoriteContext';
-
 import { Link } from 'react-router-dom';
 import { theme, animations } from '../styles/theme';
+import { useCart } from '../hooks/useCart';
+import { useFavorites } from '../hooks/useFavorites';
 
 interface ProductCardProps {
   product: Product;

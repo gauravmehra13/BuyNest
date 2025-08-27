@@ -3,11 +3,11 @@ import { useParams } from 'react-router-dom';
 import { Star, ShoppingCart, Heart, Truck, Shield } from 'lucide-react';
 import { Product } from '../types';
 import { api } from '../services/api';
-import { useCart } from '../contexts/CartContext';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { theme, commonClasses } from '../styles/theme';
-import { useFavorites } from '../contexts/FavoriteContext';
+import { useFavorites } from '../hooks/useFavorites';
+import { useCart } from '../hooks/useCart';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();

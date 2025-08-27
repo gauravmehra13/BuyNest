@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { User, Package, LogOut, Edit, Save, X, Plus, Trash, Mail, Phone, XCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { theme, commonClasses } from '../styles/theme';
 import { profileAPI } from '../services/api';
 import { PastOrder, PastOrderDetail } from '../types';
+import { useAuth } from '../hooks/useAuth';
 
 export default function AccountPage() {
   const { state, logout, updateUser } = useAuth();
