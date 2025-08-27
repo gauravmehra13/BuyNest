@@ -16,6 +16,8 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Add currentPage state
+  const productsPerPage = 24; // Products per page
 
   const searchQuery = searchParams.get('search') || '';
 
@@ -65,6 +67,7 @@ export default function ProductsPage() {
     }));
   }, [products]);
 
+  // Filter and sort products
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
@@ -98,6 +101,61 @@ export default function ProductsPage() {
 
     return filtered;
   }, [products, selectedCategory, sortBy, priceRange]);
+
+  // Paginate products
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  }, [filteredProducts, currentPage]);
+
+  // Total number of pages
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Pagination Controls
+  const Pagination = () => {
+    const maxPagesToShow = 5; // Maximum number of page buttons to show
+    const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    return (
+      <div className="flex items-center justify-center space-x-2 mt-8">
+        {/* Previous Button */}
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`${theme.button.secondary} ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          Previous
+        </button>
+
+        {/* Page Numbers */}
+        {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={`${theme.button.secondary} ${currentPage === page ? 'bg-indigo-100 border-indigo-600 text-indigo-600 font-semibold' : ''}`}
+          >
+            {page}
+          </button>
+        ))}
+
+        {/* Next Button */}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`${theme.button.secondary} ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className={commonClasses.pageContainer}>
@@ -230,11 +288,16 @@ export default function ProductsPage() {
                 <p className={`mt-2 ${theme.text.body}`}>Try adjusting your filters or search terms</p>
               </div>
             ) : (
-              <div className={viewMode === 'grid' ? commonClasses.cardGrid : 'space-y-4'}>
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
-              </div>
+              <>
+                <div className={viewMode === 'grid' ? commonClasses.cardGrid : 'space-y-4'}>
+                  {paginatedProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                <Pagination />
+              </>
             )}
           </div>
         </div>
