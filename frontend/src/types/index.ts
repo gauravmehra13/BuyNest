@@ -45,6 +45,7 @@ export interface User {
   }[];
   createdAt: string;
   updatedAt: string;
+  __v?: number; 
 }
 
 export interface AuthResponse {
@@ -91,17 +92,24 @@ export interface CheckoutPayload {
   phoneNumber: string;
   address: string;
   cityStateZip: string;
-  cardNumber: string;
-  expiryDate: string;
-  cvv: string;
-  transactionType: "1" | "2" | "3";
+  cardNumber?: string; // Optional for Stripe
+  expiryDate?: string; // Optional for Stripe
+  cvv?: string; // Optional for Stripe
+  transactionType?: "1" | "2" | "3"; // Optional for Stripe
+  paymentMethodId?: string; // Added for Stripe
 }
 
 export interface Order {
   _id: string;
   orderNumber: string;
+  user: string;
+  customerName: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  cityStateZip: string;
   products: {
-    productId: string;
+    _id: string;
     name: string;
     quantity: number;
     price: number;
@@ -109,14 +117,11 @@ export interface Order {
     selectedColor: string;
   }[];
   totalAmount: number;
-  customerName: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  cityStateZip: string;
   status: string;
+  transactionStatus: string;
   createdAt: string;
   updatedAt: string;
+  __v: number;
 }
 
 export interface PaginationResponse<T> {
@@ -175,4 +180,10 @@ export interface PastOrderDetail extends PastOrder {
   cityStateZip: string;
   transactionStatus: "Approved" | "Declined" | "Gateway Error";
   updatedAt: string;
+}
+
+export interface CheckoutResponse {
+  message: string;
+  orderNumber: string;
+  paymentIntentId: string;
 }

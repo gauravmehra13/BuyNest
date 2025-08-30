@@ -13,7 +13,7 @@ export default function OrderConfirmationPage() {
       if (!orderNumber) return;
 
       try {
-        const order = await ordersAPI.getOrder(orderNumber);
+        const order = await ordersAPI.getOrder(orderNumber) as Order;
         setOrderData(order);
       } catch (error) {
         console.error('Failed to fetch order:', error);

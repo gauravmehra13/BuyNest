@@ -1,5 +1,5 @@
 import axiosInstance from "./axiosInstance";
-import { AuthResponse, User, Order, CheckoutPayload } from "../types";
+import { AuthResponse, User, Order, CheckoutPayload , Product} from "../types";
 // import { Product } from '../types';
 
 export const authAPI = {
@@ -64,8 +64,8 @@ export const productsAPI = {
     return response.data;
   },
 
-  getRelatedProducts: async (category: string) => {
-    const response = await axiosInstance.get(`/products?category=${encodeURIComponent(category)}`);
+  getRelatedProducts: async (category: string): Promise<Product[]> => {
+    const response = await axiosInstance.get<Product[]>(`/products?category=${encodeURIComponent(category)}`);
     return response.data;
   },
 

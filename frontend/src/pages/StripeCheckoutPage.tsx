@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { CreditCard, Truck, CheckCircle, AlertCircle } from 'lucide-react';
 import { checkoutAPI } from '../services/api';
+import { CheckoutResponse } from '../types';
 
 const StripeCheckoutForm = () => {
   const stripe = useStripe();
@@ -92,6 +93,12 @@ const StripeCheckoutForm = () => {
     if (!validateForm()) return;
     if (!stripe || !elements) return;
 
+    // Ensure user ID is defined
+    if (!authState.user?._id) {
+      setStripeError('User ID is missing. Please log in again.');
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
@@ -125,7 +132,7 @@ const StripeCheckoutForm = () => {
       }
 
       const checkoutPayload = {
-        user: authState.user?._id,
+        user: authState.user._id,
         products: cartState.items.map(item => ({
           productId: item.product._id,
           name: item.product.name,
@@ -143,7 +150,8 @@ const StripeCheckoutForm = () => {
         paymentMethodId: paymentMethod.id,
       };
 
-      const response = await checkoutAPI.checkout(checkoutPayload);
+      // Add type assertion for the response
+      const response = await checkoutAPI.checkout(checkoutPayload) as CheckoutResponse;
 
       dispatch({ type: 'CLEAR_CART' });
       navigate(`/order-confirmation/${response.orderNumber}`);

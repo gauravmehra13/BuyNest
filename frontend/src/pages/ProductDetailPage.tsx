@@ -29,14 +29,14 @@ export default function ProductDetailPage() {
 
       try {
         setLoading(true);
-        const productData = await productsAPI.getProduct(id);
+        const productData = await productsAPI.getProduct(id) as Product;
         setProduct(productData);
         setSelectedSize(productData.sizes[0] || '');
         setSelectedColor(productData.colors[0] || '');
 
         // Fetch related products
-        const related = await productsAPI.getRelatedProducts(productData.category);
-        setRelatedProducts(related.filter((p: Product) => p._id !== id).slice(0, 4));
+        const related = await productsAPI.getRelatedProducts(productData.category) as Product[];
+        setRelatedProducts(related.filter((p) => p._id !== id).slice(0, 4));
       } catch (error) {
         console.error('Failed to fetch product:', error);
       } finally {
@@ -118,9 +118,8 @@ export default function ProductDetailPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                    selectedImage === index ? 'border-primary-600' : 'border-gray-200'
-                  }`}
+                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${selectedImage === index ? 'border-primary-600' : 'border-gray-200'
+                    }`}
                 >
                   <img
                     src={image}
@@ -174,11 +173,10 @@ export default function ProductDetailPage() {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`px-4 py-2 border rounded-lg ${
-                        selectedSize === size
+                      className={`px-4 py-2 border rounded-lg ${selectedSize === size
                           ? 'border-primary-600 bg-primary-50 text-primary-600'
                           : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                      }`}
+                        }`}
                     >
                       {size}
                     </button>
@@ -196,11 +194,10 @@ export default function ProductDetailPage() {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`px-4 py-2 border rounded-lg ${
-                        selectedColor === color
+                      className={`px-4 py-2 border rounded-lg ${selectedColor === color
                           ? 'border-primary-600 bg-primary-50 text-primary-600'
                           : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                      }`}
+                        }`}
                     >
                       {color}
                     </button>

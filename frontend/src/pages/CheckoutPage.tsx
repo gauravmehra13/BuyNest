@@ -6,6 +6,7 @@ import { theme, commonClasses } from '../styles/theme';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { checkoutAPI } from '../services/api';
+import { CheckoutResponse } from '../types';
 
 interface FormErrors {
   [key: string]: string;
@@ -180,9 +181,7 @@ export default function CheckoutPage() {
         transactionType: "1" // 1 = Approved, 2 = Declined, 3 = Gateway Error
       };
 
-      console.log('Sending checkout payload:', checkoutPayload); // Add this for debugging
-
-      const response = await checkoutAPI.checkout(checkoutPayload);
+      const response = await checkoutAPI.checkout(checkoutPayload) as CheckoutResponse;
 
       // Clear cart and redirect
       dispatch({ type: 'CLEAR_CART' });
