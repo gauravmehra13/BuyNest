@@ -113,7 +113,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const cartItems = await cartAPI.getCart();
+        const cartItems = await cartAPI.getCart() as CartItem[];
         dispatch({ type: 'SET_CART', items: cartItems });
       } catch (error) {
         console.error("Failed to fetch cart:", error);
@@ -142,6 +142,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           await cartAPI.addToCart(item.product._id, item.quantity, item.selectedSize, item.selectedColor);
         }
         localStorage.removeItem('guestCart');
+        const updatedCart = await cartAPI.getCart() as CartItem[];
+        dispatch({ type: 'SET_CART', items: updatedCart });
       }
     };
     if (authState.isAuthenticated) {
@@ -156,7 +158,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const newItem = await cartAPI.addToCart(product._id, 1, selectedSize, selectedColor);
+      const newItem = await cartAPI.addToCart(product._id, 1, selectedSize, selectedColor) as { _id: string };
       dispatch({ type: 'ADD_TO_CART', product, selectedSize, selectedColor, cartItemId: newItem._id });
       toast.success('Added to cart!', { id: 'add-to-cart' });
     } catch (error) {

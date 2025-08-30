@@ -3,19 +3,15 @@ import { Product } from '../types';
 import { favoritesAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
-
-interface Favorite {
-    _id: string;
-    product: Product;
-}
+import { FavoriteItem } from '../types';
 
 interface FavoritesState {
-    items: Favorite[];
+    items: FavoriteItem[];
     isOpen: boolean;
 }
 
 type FavoritesAction =
-    | { type: 'SET_FAVORITES'; items: Favorite[] }
+    | { type: 'SET_FAVORITES'; items: FavoriteItem[] }
     | { type: 'ADD_TO_FAVORITES'; product: Product; favoriteId?: string }
     | { type: 'REMOVE_FROM_FAVORITES'; favoriteId: string }
     | { type: 'CLEAR_FAVORITES' }
@@ -40,7 +36,13 @@ function favoritesReducer(state: FavoritesState, action: FavoritesAction): Favor
                 ...state,
                 items: [
                     ...state.items,
-                    { _id: action.favoriteId || `temp-${action.product._id}`, product: action.product }
+                    { 
+                        _id: action.favoriteId || `temp-${action.product._id}`, 
+                        product: action.product,
+                        user: '', // Optional, so no need to include if not used
+                        createdAt: new Date().toISOString(), // Optional
+                        updatedAt: new Date().toISOString(), // Optional
+                    }
                 ]
             };
         }
@@ -75,7 +77,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const favorites = await favoritesAPI.getFavorites();
+                const favorites = await favoritesAPI.getFavorites() as FavoriteItem[];
                 dispatch({ type: 'SET_FAVORITES', items: favorites });
             } catch (error) {
                 console.error("Failed to fetch favorites:", error);
@@ -104,6 +106,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
                     await favoritesAPI.addToFavorites(fav.product._id);
                 }
                 localStorage.removeItem('guestFavorites');
+                const updatedFavorites = await favoritesAPI.getFavorites() as FavoriteItem[];
+                dispatch({ type: 'SET_FAVORITES', items: updatedFavorites });
             }
         };
         if (authState.isAuthenticated) {
@@ -118,7 +122,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
             return;
         }
         try {
-            const newFav = await favoritesAPI.addToFavorites(product._id);
+            const newFav = await favoritesAPI.addToFavorites(product._id) as { _id: string };
             dispatch({ type: 'ADD_TO_FAVORITES', product, favoriteId: newFav._id });
             toast.success('Added to favorites!', { id: 'add-to-favorites' });
         } catch (error) {

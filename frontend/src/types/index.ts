@@ -16,6 +16,10 @@ export interface Product {
 export interface FavoriteItem {
   _id: string;
   product: Product;
+  user?: string; // Make optional
+  createdAt?: string; // Make optional
+  updatedAt?: string; // Make optional
+  __v?: number; // Make optional
 }
 
 export interface CartItem {
@@ -24,6 +28,10 @@ export interface CartItem {
   quantity: number;
   selectedSize?: string;
   selectedColor?: string;
+  user?: string; // Make optional
+  createdAt?: string; // Make optional
+  updatedAt?: string; // Make optional
+  __v?: number; // Make optional
 }
 
 export interface User {

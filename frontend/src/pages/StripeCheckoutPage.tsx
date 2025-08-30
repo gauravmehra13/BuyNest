@@ -90,6 +90,12 @@ const StripeCheckoutForm = () => {
     e.preventDefault();
     setStripeError(null);
 
+    // Check if cart is empty
+    if (cartState.items.length === 0) {
+      setStripeError('Your cart is empty. Add items to proceed.');
+      return;
+    }
+
     if (!validateForm()) return;
     if (!stripe || !elements) return;
 

@@ -34,8 +34,8 @@ export default function ContactPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Contact Form */}
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+        {/* Contact Form */}
           <div className={`${theme.card.base} p-8`}>
             <h2 className={`text-2xl font-bold ${theme.text.heading} mb-6`}>Send us a message</h2>
             
