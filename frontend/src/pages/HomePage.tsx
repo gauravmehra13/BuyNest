@@ -73,7 +73,7 @@ export default function HomePage() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={theme.input.base}
+                className={`${theme.input.base} text-gray-900`}
               />
               <button
                 type="submit"
