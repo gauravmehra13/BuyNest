@@ -3,7 +3,7 @@ import { User, Package, LogOut, Edit, Save, X, Plus, Trash, Mail, Phone, XCircle
 import { Link, useNavigate } from 'react-router-dom';
 import { theme, commonClasses } from '../styles/theme';
 import { profileAPI } from '../services/api';
-import { PastOrder, PastOrderDetail } from '../types';
+import { Order } from '../types';
 import { useAuth } from '../hooks/useAuth';
 
 export default function AccountPage() {
@@ -15,10 +15,10 @@ export default function AccountPage() {
   const [isModalLoading, setIsModalLoading] = useState(false);
   const [error, setError] = useState('');
   const [modalError, setModalError] = useState('');
-  const [orders, setOrders] = useState<PastOrder[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedOrder, setSelectedOrder] = useState<PastOrderDetail | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editedProfile, setEditedProfile] = useState({
     firstName: state.user?.firstName || '',
     lastName: state.user?.lastName || '',
@@ -279,11 +279,10 @@ export default function AccountPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors ${
-                      activeTab === tab.id
-                        ? 'border-primary-600 text-primary-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
+                    className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                      ? 'border-primary-600 text-primary-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      }`}
                   >
                     <Icon className="h-5 w-5" />
                     <span>{tab.label}</span>
@@ -490,7 +489,7 @@ export default function AccountPage() {
                             <span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(order.status)}`}>
                               {order.status}
                             </span>
-                            <p className="mt-1 font-semibold">${order.totalAmount.toFixed(2)}</p>
+                            <p className="mt-1 font-semibold">₹{order.totalAmount.toFixed(2)}</p>
                           </div>
                         </div>
                         <div className="space-y-2">
@@ -501,7 +500,7 @@ export default function AccountPage() {
                                 {product.selectedSize && ` - Size: ${product.selectedSize}`}
                                 {product.selectedColor && ` - Color: ${product.selectedColor}`}
                               </span>
-                              <span>${(product.price * product.quantity).toFixed(2)}</span>
+                              <span>₹{(product.price * product.quantity).toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
@@ -521,11 +520,10 @@ export default function AccountPage() {
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`px-3 py-1 rounded ${
-                              currentPage === page
-                                ? 'bg-primary-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
+                            className={`px-3 py-1 rounded ${currentPage === page
+                              ? 'bg-primary-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              }`}
                           >
                             {page}
                           </button>
@@ -649,7 +647,7 @@ export default function AccountPage() {
                             </p>
                             <p className="text-gray-500">Quantity: {product.quantity}</p>
                           </div>
-                          <p className="font-medium">${(product.price * product.quantity).toFixed(2)}</p>
+                          <p className="font-medium">₹{(product.price * product.quantity).toFixed(2)}</p>
                         </div>
                       ))}
                     </div>
@@ -658,7 +656,7 @@ export default function AccountPage() {
                   {/* Order Total */}
                   <div className="border-t pt-4 flex justify-between items-center">
                     <span className={`text-lg ${theme.text.heading}`}>Total</span>
-                    <span className="text-lg font-bold">${selectedOrder.totalAmount.toFixed(2)}</span>
+                    <span className="text-lg font-bold">₹{selectedOrder.totalAmount.toFixed(2)}</span>
                   </div>
                 </>
               ) : null}

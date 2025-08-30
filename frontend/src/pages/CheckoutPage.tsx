@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
 import { CheckoutPayload } from '../types';
 import { CreditCard, Truck, CheckCircle, AlertCircle } from 'lucide-react';
 import { theme, commonClasses } from '../styles/theme';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
+import { checkoutAPI } from '../services/api';
 
 interface FormErrors {
   [key: string]: string;
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
 
       console.log('Sending checkout payload:', checkoutPayload); // Add this for debugging
 
-      const response = await api.checkout(checkoutPayload);
+      const response = await checkoutAPI.checkout(checkoutPayload);
 
       // Clear cart and redirect
       dispatch({ type: 'CLEAR_CART' });

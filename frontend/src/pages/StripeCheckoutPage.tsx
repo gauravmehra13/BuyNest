@@ -6,7 +6,7 @@ import { useCart } from '../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { CreditCard, Truck, CheckCircle, AlertCircle } from 'lucide-react';
-import { api } from '../services/api'; 
+import { checkoutAPI } from '../services/api';
 
 const StripeCheckoutForm = () => {
   const stripe = useStripe();
@@ -143,7 +143,7 @@ const StripeCheckoutForm = () => {
         paymentMethodId: paymentMethod.id,
       };
 
-      const response = await api.checkout(checkoutPayload);
+      const response = await checkoutAPI.checkout(checkoutPayload);
 
       dispatch({ type: 'CLEAR_CART' });
       navigate(`/order-confirmation/${response.orderNumber}`);

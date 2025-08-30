@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Filter, Grid, List } from 'lucide-react';
 import { Product } from '../types';
-import { api } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { useSearchParams } from 'react-router-dom';
 import { theme, commonClasses } from '../styles/theme';
 import { getCachedData, setCachedData } from '../utils/cache';
+import { productsAPI } from '../services/api';
 
 export default function ProductsPage() {
   const [searchParams] = useSearchParams();
@@ -39,9 +39,9 @@ export default function ProductsPage() {
 
         let fetchedProducts: Product[];
         if (searchQuery) {
-          fetchedProducts = await api.searchProducts(searchQuery) as Product[];
+          fetchedProducts = await productsAPI.searchProducts(searchQuery) as Product[];
         } else {
-          fetchedProducts = await api.getAllProducts() as Product[];
+          fetchedProducts = await productsAPI.getAllProducts() as Product[];
         }
 
         setProducts(fetchedProducts);

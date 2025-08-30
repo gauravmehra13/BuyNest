@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Truck, Shield, Headphones, RefreshCw, Star, ShoppingBag } from 'lucide-react';
 import { Product } from '../types';
-import { api } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { theme } from '../styles/theme';
 import { getCachedData, setCachedData } from '../utils/cache';
 import toast from 'react-hot-toast';
+import { productsAPI } from '../services/api';
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -24,7 +24,7 @@ export default function HomePage() {
           return;
         }
 
-        const products = await api.getAllProducts();
+        const products = await productsAPI.getAllProducts();
         const featured = (products as Product[]).slice(0, 4);
         setFeaturedProducts(featured);
         setCachedData(cacheKey, featured);

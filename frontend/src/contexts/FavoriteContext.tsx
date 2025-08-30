@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, ReactNode, useEffect } from 'react';
 import { Product } from '../types';
-import { api } from '../services/api';
+import { favoritesAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 
@@ -75,7 +75,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const favorites = await api.getFavorites();
+                const favorites = await favoritesAPI.getFavorites();
                 dispatch({ type: 'SET_FAVORITES', items: favorites });
             } catch (error) {
                 console.error("Failed to fetch favorites:", error);
@@ -101,7 +101,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
             const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites') || '[]');
             if (guestFavorites.length) {
                 for (const fav of guestFavorites) {
-                    await api.addToFavorites(fav.product._id);
+                    await favoritesAPI.addToFavorites(fav.product._id);
                 }
                 localStorage.removeItem('guestFavorites');
             }
@@ -118,7 +118,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
             return;
         }
         try {
-            const newFav = await api.addToFavorites(product._id);
+            const newFav = await favoritesAPI.addToFavorites(product._id);
             dispatch({ type: 'ADD_TO_FAVORITES', product, favoriteId: newFav._id });
             toast.success('Added to favorites!', { id: 'add-to-favorites' });
         } catch (error) {
@@ -134,7 +134,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
             return;
         }
         try {
-            await api.removeFromFavorites(favoriteId);
+            await favoritesAPI.removeFromFavorites(favoriteId);
             dispatch({ type: 'REMOVE_FROM_FAVORITES', favoriteId });
             toast.success('Removed from favorites!');
         } catch (error) {

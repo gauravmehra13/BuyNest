@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { api } from '../services/api';
 import { Order } from '../types';
 import { CheckCircle, Package, Truck, Calendar } from 'lucide-react';
-
+import { ordersAPI } from '../services/api';
 export default function OrderConfirmationPage() {
   const { orderNumber } = useParams<{ orderNumber: string }>();
   const [orderData, setOrderData] = useState<Order | null>(null);
@@ -12,9 +11,9 @@ export default function OrderConfirmationPage() {
   useEffect(() => {
     const fetchOrder = async () => {
       if (!orderNumber) return;
-      
+
       try {
-        const order = await api.getOrder(orderNumber);
+        const order = await ordersAPI.getOrder(orderNumber);
         setOrderData(order);
       } catch (error) {
         console.error('Failed to fetch order:', error);
@@ -148,7 +147,7 @@ export default function OrderConfirmationPage() {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <Package className="h-5 w-5 text-blue-600" />
@@ -158,7 +157,7 @@ export default function OrderConfirmationPage() {
                 <p className="text-sm text-gray-600">We're preparing your order</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                 <Truck className="h-5 w-5 text-gray-400" />
@@ -168,7 +167,7 @@ export default function OrderConfirmationPage() {
                 <p className="text-sm text-gray-400">Estimated in 3-4 business days</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-gray-400" />

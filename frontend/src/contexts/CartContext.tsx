@@ -1,8 +1,8 @@
 import React, { createContext, useReducer, ReactNode, useEffect } from 'react';
 import { CartItem, Product } from '../types';
-import { api } from '../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
+import { cartAPI } from '../services/api';
 
 interface CartState {
   items: CartItem[];
@@ -113,7 +113,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const cartItems = await api.getCart();
+        const cartItems = await cartAPI.getCart();
         dispatch({ type: 'SET_CART', items: cartItems });
       } catch (error) {
         console.error("Failed to fetch cart:", error);
@@ -139,7 +139,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
       if (guestCart.length) {
         for (const item of guestCart) {
-          await api.addToCart(item.product._id, item.quantity, item.selectedSize, item.selectedColor);
+          await cartAPI.addToCart(item.product._id, item.quantity, item.selectedSize, item.selectedColor);
         }
         localStorage.removeItem('guestCart');
       }
@@ -156,7 +156,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const newItem = await api.addToCart(product._id, 1, selectedSize, selectedColor);
+      const newItem = await cartAPI.addToCart(product._id, 1, selectedSize, selectedColor);
       dispatch({ type: 'ADD_TO_CART', product, selectedSize, selectedColor, cartItemId: newItem._id });
       toast.success('Added to cart!', { id: 'add-to-cart' });
     } catch (error) {
@@ -172,7 +172,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      await api.removeFromCart(cartItemId);
+      await cartAPI.removeFromCart(cartItemId);
       dispatch({ type: 'REMOVE_FROM_CART', cartItemId });
       toast.success('Removed from cart!');
     } catch (error) {
@@ -187,7 +187,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      await api.updateCartItem(cartItemId, quantity);
+      await cartAPI.updateCartItem(cartItemId, quantity);
       dispatch({ type: 'UPDATE_QUANTITY', cartItemId, quantity });
     } catch (error) {
       console.error("Failed to update quantity:", error);
@@ -200,7 +200,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      await api.updateCartItem(cartItemId, 1, selectedSize, selectedColor);
+      await cartAPI.updateCartItem(cartItemId, 1, selectedSize, selectedColor);
       dispatch({ type: 'UPDATE_SELECTION', cartItemId, selectedSize, selectedColor });
     } catch (error) {
       console.error("Failed to update selection:", error);
@@ -214,7 +214,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      await api.clearCart();
+      await cartAPI.clearCart();
       dispatch({ type: 'CLEAR_CART' });
 
     } catch (error) {
